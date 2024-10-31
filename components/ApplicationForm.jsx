@@ -472,6 +472,25 @@ const ApplicationForm = ({ isOpen, setIsOpen }) => {
                   <option value="part-time">Part Time</option>
                 </select>
               </div>
+              {/* Preferred Campus */}
+              <div>
+                <RequiredLabel>Preferred Campus</RequiredLabel>
+                <select
+                  value={formData.personalInfo.preferredCampus || ""}
+                  onChange={(e) =>
+                    handleInputChange(
+                      "kcseGrades",
+                      "preferredCampus",
+                      e.target.value
+                    )
+                  }
+                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-siemens-green focus:outline-none"
+                >
+                  <option value="">Select Campus</option>
+                  <option value="main">Main Campus</option>
+                  <option value="nairobi">Nairobi Campus</option>
+                </select>
+              </div>
             </div>
             <div>
               <RequiredLabel>
@@ -670,120 +689,100 @@ const ApplicationForm = ({ isOpen, setIsOpen }) => {
                   max={new Date().getFullYear()}
                 />
               </div>
-              {/* KCSE Certificate Upload */}
-              <div>
-                <RequiredLabel>KCSE Certificate</RequiredLabel>
-                <div className="bg-blue-50 p-4 rounded-md mb-6 mt-4">
-                  <p className="text-sm text-siemens-green font-medium ">
-                    Only PDF FORMAT is allowed.
-                  </p>
-                </div>
-                <div className="mt-2">
-                  <div className="flex items-center justify-between px-4 py-3 border border-gray-300 rounded-md bg-white">
-                    <div className="flex items-center">
-                      <input
-                        type="file"
-                        accept=".pdf"
-                        id="kcse-certificate"
-                        className="hidden"
-                        onChange={(e) => {
-                          const file = e.target.files[0];
-                          if (file) {
-                            if (file.type !== "application/pdf") {
-                              alert("Please upload a PDF file");
-                              e.target.value = "";
-                              return;
-                            }
-                            if (file.size > 5 * 1024 * 1024) {
-                              // 5MB limit
-                              alert("File size should be less than 5MB");
-                              e.target.value = "";
-                              return;
-                            }
+            </div>
+            {/* KCSE Certificate Upload */}
+            <div>
+              <RequiredLabel>KCSE Certificate</RequiredLabel>
+              <div className="bg-blue-50 p-4 rounded-md mb-6 mt-4">
+                <p className="text-sm text-siemens-green font-medium ">
+                  Only PDF FORMAT is allowed.
+                </p>
+              </div>
+              <div className="mt-2">
+                <div className="flex items-center justify-between px-4 py-3 border border-gray-300 rounded-md bg-white">
+                  <div className="flex items-center">
+                    <input
+                      type="file"
+                      accept=".pdf"
+                      id="kcse-certificate"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                          if (file.type !== "application/pdf") {
+                            alert("Please upload a PDF file");
+                            e.target.value = "";
+                            return;
+                          }
+                          if (file.size > 5 * 1024 * 1024) {
+                            // 5MB limit
+                            alert("File size should be less than 5MB");
+                            e.target.value = "";
+                            return;
+                          }
+                          handleInputChange(
+                            "kcseGrades",
+                            "kcseCertificate",
+                            file
+                          );
+                        }
+                      }}
+                    />
+                    <label
+                      htmlFor="kcse-certificate"
+                      className="cursor-pointer flex items-center"
+                    >
+                      <div className="mr-4">
+                        <svg
+                          className="h-6 w-6 text-gray-400"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 4v16m8-8H4"
+                          />
+                        </svg>
+                      </div>
+                      <div>
+                        <span className="text-sm font-medium text-siemens-green">
+                          Choose file
+                        </span>
+                        <p className="text-xs text-gray-500 mt-1">
+                          PDF, max 5MB
+                        </p>
+                      </div>
+                    </label>
+                  </div>
+                  <div className="text-sm text-gray-500">
+                    {formData.kcseGrades?.kcseCertificate ? (
+                      <div className="flex items-center">
+                        <span className="truncate max-w-xs">
+                          {formData.kcseGrades.kcseCertificate.name}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() =>
                             handleInputChange(
                               "kcseGrades",
                               "kcseCertificate",
-                              file
-                            );
+                              null
+                            )
                           }
-                        }}
-                      />
-                      <label
-                        htmlFor="kcse-certificate"
-                        className="cursor-pointer flex items-center"
-                      >
-                        <div className="mr-4">
-                          <svg
-                            className="h-6 w-6 text-gray-400"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M12 4v16m8-8H4"
-                            />
-                          </svg>
-                        </div>
-                        <div>
-                          <span className="text-sm font-medium text-siemens-green">
-                            Choose file
-                          </span>
-                          <p className="text-xs text-gray-500 mt-1">
-                            PDF, max 5MB
-                          </p>
-                        </div>
-                      </label>
-                    </div>
-                    <div className="text-sm text-gray-500">
-                      {formData.kcseGrades?.kcseCertificate ? (
-                        <div className="flex items-center">
-                          <span className="truncate max-w-xs">
-                            {formData.kcseGrades.kcseCertificate.name}
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() =>
-                              handleInputChange(
-                                "kcseGrades",
-                                "kcseCertificate",
-                                null
-                              )
-                            }
-                            className="ml-2 text-red-600 hover:text-red-800"
-                          >
-                            ×
-                          </button>
-                        </div>
-                      ) : (
-                        "No file chosen"
-                      )}
-                    </div>
+                          className="ml-2 text-red-600 hover:text-red-800"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ) : (
+                      "No file chosen"
+                    )}
                   </div>
                 </div>
               </div>
-            </div>
-
-            {/* Preferred Campus */}
-            <div>
-              <RequiredLabel>Preferred Campus</RequiredLabel>
-              <select
-                value={formData.kcseGrades.preferredCampus || ""}
-                onChange={(e) =>
-                  handleInputChange(
-                    "kcseGrades",
-                    "preferredCampus",
-                    e.target.value
-                  )
-                }
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-siemens-green focus:outline-none"
-              >
-                <option value="">Select Campus</option>
-                <option value="main">Main Campus</option>
-                <option value="nairobi">Nairobi Campus</option>
-              </select>
             </div>
 
             {/* Mean Grade */}
@@ -821,52 +820,6 @@ const ApplicationForm = ({ isOpen, setIsOpen }) => {
             {/* Subject Grades */}
             <div className="space-y-4">
               <RequiredLabel>Subject Grades</RequiredLabel>
-
-              {/* Compulsory Subjects */}
-              {["English", "Kiswahili", "Mathematics"].map((subject) => (
-                <div
-                  key={subject}
-                  className="grid grid-cols-2 gap-4 items-center"
-                >
-                  <input
-                    type="text"
-                    value={subject}
-                    disabled
-                    className="mt-1 block w-full rounded-md border border-gray-200 px-3 py-2 bg-gray-50"
-                  />
-                  <select
-                    value={formData.kcseGrades[subject.toLowerCase()] || ""}
-                    onChange={(e) =>
-                      handleInputChange(
-                        "kcseGrades",
-                        subject.toLowerCase(),
-                        e.target.value
-                      )
-                    }
-                    className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-siemens-green focus:outline-none"
-                  >
-                    <option value="">Select Grade</option>
-                    {[
-                      "A",
-                      "A-",
-                      "B+",
-                      "B",
-                      "B-",
-                      "C+",
-                      "C",
-                      "C-",
-                      "D+",
-                      "D",
-                      "D-",
-                      "E",
-                    ].map((grade) => (
-                      <option key={grade} value={grade}>
-                        {grade}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              ))}
 
               {/* Additional Subjects */}
               {formData.kcseGrades.subjects?.map((subject, index) => (
@@ -1520,7 +1473,7 @@ const ApplicationForm = ({ isOpen, setIsOpen }) => {
                     onClick={handleNext}
                     className="bg-siemens-green text-white px-4 py-2 rounded-md hover:bg-siemens-green-dark"
                   >
-                    {currentStep === steps.length - 1 ? "Submit" : "Next"}
+                    {currentStep === steps.length - 1 ? "Close" : "Next"}
                   </button>
                 </div>
               </div>
