@@ -56,7 +56,7 @@ const MissionSection = ({ missions = [] }) => {
                   <h4 className="text-3xl font-bold mb-2 text-siemens-green">
                     {mission.title}
                   </h4>
-                  <p className="text-xl">{mission.content}</p>
+                  <p className="text-xl font-sans">{mission.content}</p>
                 </div>
               </div>
             </div>

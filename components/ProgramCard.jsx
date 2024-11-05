@@ -18,7 +18,7 @@ const ProgramCard = ({ title, description, imageSrc, altText }) => (
       <h3 className="text-3xl font-bold text-white mb-2 mt-[10px] text-center">
         {title}
       </h3>
-      <p className="text-black text-xl">{description}</p>
+      <p className="text-black text-xl font-sans">{description}</p>
     </div>
   </div>
 );

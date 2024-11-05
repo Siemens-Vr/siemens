@@ -69,7 +69,7 @@ const LoginPage = () => {
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
-                    className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-siemens-green focus:border-transparent"
+                    className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-siemens-green focus:border-transparent text-siemens-green"
                     placeholder="your@email.com"
                     required
                   />
@@ -86,7 +86,7 @@ const LoginPage = () => {
                 </label>
                 <div className="relative">
                   <Lock
-                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 "
                     size={20}
                   />
                   <input
@@ -95,7 +95,7 @@ const LoginPage = () => {
                     name="password"
                     value={formData.password}
                     onChange={handleChange}
-                    className="block w-full pl-10 pr-10 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-siemens-green focus:border-transparent"
+                    className="block w-full pl-10 pr-10 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-siemens-green focus:border-transparent text-siemens-green"
                     placeholder="••••••••"
                     required
                   />

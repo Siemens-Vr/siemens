@@ -39,16 +39,16 @@ const SlidingOverlayImage = ({ images }) => {
       </div>
       {/* Overlay content */}
       <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center items-start p-12">
-        <h1 className="text-2xl md:text-3xl lg:text-7xl font-bold mb-2 md:mb-4 text-gray-100">
+        <h1 className="text-2xl md:text-3xl lg:text-7xl font-sans font-bold mb-2 md:mb-4 text-gray-100">
           Siemens Mechatronics <br /> Certification Centre
         </h1>
-        <p className="text-sm md:text-base lg:text-xl max-w-2xl text-white">
+        <p className="text-sm md:text-base lg:text-xl max-w-2xl text-white font-sans">
           Welcome to the pioneering Siemens Mechatronics Certification Centre in
           Africa. We are located at Dedan Kimathi University of Technology
           (DeKUT), Nyeri-Kenya.
         </p>
         <Link href="/Programmes" passHref>
-          <button className="mt-4 md:mt-6 lg:mt-8 px-4 py-2 bg-blue-900 text-white rounded-md text-sm md:text-base hover:bg-blue-600 transition-colors duration-300">
+          <button className="mt-4 md:mt-6 lg:mt-8 px-4 py-2 bg-blue-900 text-white rounded-md text-sm md:text-base hover:bg-blue-600 transition-colors duration-300 font-sans">
             Our Programmes
           </button>
         </Link>

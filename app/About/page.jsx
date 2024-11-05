@@ -39,7 +39,7 @@ const Section = ({ title, content, imageSrc, imageAlt, isReverse, icon }) => {
           {Icon && <Icon className="mr-2" size={24} />}
           {title}
         </h2>
-        <p className="text-gray-700 text-xl">{content}</p>
+        <p className="text-black text-xl font-sans">{content}</p>
       </div>
     </div>
   );

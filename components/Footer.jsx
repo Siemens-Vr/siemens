@@ -2,7 +2,7 @@ import React from "react";
 
 const Footer = () => {
   return (
-    <footer className="bg-[#0A2342] text-white py-4 h-auto">
+    <footer className="bg-[#0A2342] text-white py-6 h-[350px]">
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row justify-between">
           {/* Left Column */}
@@ -133,7 +133,7 @@ const Footer = () => {
             ))}
           </div>
         </div>
-        <div className="text-center mt-8">
+        <div className="text-center mt-4">
           <p>&copy; 2024 DeKUT Siemens Centre. All rights reserved.</p>
         </div>
       </div>

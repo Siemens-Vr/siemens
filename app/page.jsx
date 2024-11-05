@@ -77,7 +77,7 @@ const MainPage = () => {
 
         <AnimatedSection>
           <div>
-            <h2 className="text-3xl font-bold">
+            <h2 className="text-3xl font-sans font-bold  mt-4">
               <span className="text-red-500">Innovation</span>
               <span className="mx-2 text-black">&bull;</span>
               <span className="text-blue-500">Excellence</span>
@@ -85,7 +85,7 @@ const MainPage = () => {
               <span className="text-green-500">Leadership</span>
             </h2>
 
-            <p className="text-xl mt-2">
+            <p className="text-xl mt-2 font-sans">
               DeKUT-Siemens is founded on independent scholarship and learning
               freedom while fostering a culture of innovation and collaboration.
               The Centre is committed to equality of opportunity, engendering

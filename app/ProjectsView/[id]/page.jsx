@@ -2,8 +2,8 @@
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { projects } from "../../data/projectData";
-import Navbar from "../../components/Navbar";
-import Footer from "../../components/Footer";
+import Header from "../../../components/Header";
+import Footer from "../../../components/Footer";
 import Image from "next/image";
 
 const ProjectPage = () => {
@@ -24,8 +24,8 @@ const ProjectPage = () => {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Navbar />
-      <main className="flex-grow container mx-auto p-4">
+      <Header />
+      <main className="flex-grow container mx-auto p-4 mt-[110px]">
         <h1 className="text-2xl font-bold mb-4">{project.title}</h1>
         <p className="text-xl mb-4">{project.description}</p>
 

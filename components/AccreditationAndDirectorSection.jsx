@@ -22,7 +22,7 @@ const AccreditationAndDirectorSection = () => {
             </svg>
           </div>
         </div>
-        <p className="text-xl font-medium max-w-3xl mx-auto">
+        <p className="text-xl font-medium max-w-3xl mx-auto font-sans">
           This Centre is accredited by the Engineers Board of Kenya (EBK) and
           National Industrial Training Authority (NITA), to offer SMSCP as a
           Continuing Professional Development (CPD) for registered professional
@@ -47,7 +47,7 @@ const AccreditationAndDirectorSection = () => {
             />
           </div>
           <div className="flex-1">
-            <blockquote className="text-2xl font-bold text-blue-900 mb-4">
+            <blockquote className="text-2xl font-sans font-bold text-blue-900 mb-4">
               &ldquo;Unlock your potential, master innovation, and shape the
               future, one skill at a time.&ldquo;
             </blockquote>

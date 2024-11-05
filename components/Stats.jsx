@@ -13,7 +13,7 @@ const StatisticsSection = () => {
         />
       </div>
       <div className="md:w-1/2 md:pl-12">
-        <h2 className="text-xl mb-6 text-black">
+        <h2 className="text-xl mb-6 text-black font-sans">
           The quality of our programs and their impact on learners is a direct
           reflection of who we are and our ability to consistently meet the
           objectives we set for our students.

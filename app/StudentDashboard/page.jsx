@@ -32,8 +32,8 @@ const StudentDashboard = () => {
 
   // Mock data - replace with actual API calls
   const studentInfo = {
-    name: "John Doe",
-    level: "Level 1",
+    name: "Christopher Mwangi",
+    level: "Level 3",
     progress: 65,
     lastAccessed: "2024-10-21T14:30:00",
   };
@@ -147,7 +147,7 @@ const StudentDashboard = () => {
 
     return (
       <Dialog open={isViewerOpen} onOpenChange={setIsViewerOpen}>
-        <DialogContent className="max-w-4xl h-[80vh]">
+        <DialogContent className="max-w-7xl h-[80vh]">
           <DialogHeader>
             <DialogTitle>{material.title}</DialogTitle>
           </DialogHeader>
@@ -280,14 +280,6 @@ const StudentDashboard = () => {
             onClick={() => setActiveTab("timetable")}
           >
             Timetable
-          </button>
-          <button
-            className={`px-4 py-2 font-medium ${
-              activeTab === "progress" ? "text-siemens-green" : "text-gray-500"
-            }`}
-            onClick={() => setActiveTab("progress")}
-          >
-            Progress
           </button>
         </div>
 

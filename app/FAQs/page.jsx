@@ -134,7 +134,7 @@ const FAQs = () => {
   return (
     <div className="bg-gray-100">
       <Header targetDate={targetTimestamp} />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 mt-[110px]">
         <h2 className="text-center text-3xl font-extrabold text-siemens-green sm:text-4xl">
           Frequently Asked Questions
         </h2>
