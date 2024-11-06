@@ -22,9 +22,9 @@ import Footer from "../../components/Footer";
 const InstructorDashboard = () => {
   // State for instructor info
   const [instructorInfo, setInstructorInfo] = useState({
-    name: "Dr. Sarah Johnson",
-    department: "Computer Science",
-    materialsCount: 24,
+    name: "Maxwell Magoi",
+    department: "Virtual Reality",
+    materialsCount: 5,
     studentsCount: 150,
   });
 
@@ -36,9 +36,8 @@ const InstructorDashboard = () => {
     level1: [
       {
         id: "1",
-        title: "Introduction to Programming",
-        content:
-          "Basic concepts of programming including variables, loops, and functions.",
+        title: "Fundamentals of Mechatronic Systems",
+        content: "",
         level: "level1",
         imageUrls: [],
         imageNames: [],
@@ -76,7 +75,7 @@ const InstructorDashboard = () => {
     const newMaterial = {
       id: Date.now().toString(),
       title: "New Material",
-      content: "Enter content here...",
+      content: "Enter more content or description here...",
       level: selectedLevel,
       imageUrls: [],
       imageNames: [],

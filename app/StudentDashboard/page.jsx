@@ -23,6 +23,7 @@ import { Textarea } from "../../components/ui/textarea";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import PDFViewer from "../../components/PDFViewer"; // Import a PDF viewer component
+import ProfileMenu from "../../components/ProfileMenu";
 
 const StudentDashboard = () => {
   const [activeTab, setActiveTab] = useState("content");
@@ -226,8 +227,8 @@ const StudentDashboard = () => {
   return (
     <div className="min-h-screen bg-gray-100">
       <Navbar />
-
       {/* Header Section */}
+
       <div className="bg-white shadow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex justify-between items-center">
@@ -239,28 +240,30 @@ const StudentDashboard = () => {
                 Current Level: {studentInfo.level}
               </p>
             </div>
-            <div className="text-right">
-              <div className="text-sm text-gray-600">Overall Progress</div>
-              <div className="relative pt-1">
-                <div className="overflow-hidden h-2 w-40 text-xs flex rounded bg-gray-200">
-                  <div
-                    style={{ width: `${studentInfo.progress}%` }}
-                    className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-siemens-green"
-                  ></div>
+            <div className="flex items-center gap-8">
+              <div className="text-right mr-16">
+                <div className="text-sm text-gray-600">Overall Progress</div>
+                <div className="relative pt-1">
+                  <div className="overflow-hidden h-2 w-40 text-xs flex rounded bg-gray-200">
+                    <div
+                      style={{ width: `${studentInfo.progress}%` }}
+                      className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-siemens-green"
+                    ></div>
+                  </div>
+                  <span className="text-sm font-medium text-gray-700">
+                    {studentInfo.progress}%
+                  </span>
                 </div>
-                <span className="text-sm font-medium text-gray-700">
-                  {studentInfo.progress}%
-                </span>
+                <p className="text-sm text-gray-500">
+                  Last accessed:{" "}
+                  {new Date(studentInfo.lastAccessed).toLocaleString()}
+                </p>
               </div>
-              <p className="text-sm text-gray-500">
-                Last accessed:{" "}
-                {new Date(studentInfo.lastAccessed).toLocaleString()}
-              </p>
+              <ProfileMenu student={studentInfo} />
             </div>
           </div>
         </div>
       </div>
-
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Navigation Tabs */}
@@ -338,7 +341,6 @@ const StudentDashboard = () => {
         {/* Content Viewer Dialog */}
         {selectedMaterial && <ContentViewer material={selectedMaterial} />}
       </div>
-
       <Footer />
     </div>
   );
