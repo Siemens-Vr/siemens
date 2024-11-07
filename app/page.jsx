@@ -10,8 +10,8 @@ import MissionSection from "../components/MissionSection";
 import Stats from "../components/Stats";
 import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
-import ImageButtonTimer from "../components/ImageButtonTimer";
 import Header from "../components/Header";
+import Login from "../components/Login";
 
 const AnimatedSection = ({ children }) => {
   const [ref, inView] = useInView({
@@ -125,6 +125,9 @@ const MainPage = () => {
         </AnimatedSection>
         <AnimatedSection>
           <AccreditationAndDirectorSection />
+        </AnimatedSection>
+        <AnimatedSection>
+          <Login />
         </AnimatedSection>
       </div>
       <AnimatedSection>

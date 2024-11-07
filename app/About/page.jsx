@@ -16,32 +16,54 @@ import TeamMember from "../../components/TeamMember";
 import TitleImage from "../../components/TitleImage";
 import Partners from "../../components/Partners";
 import Header from "../../components/Header";
+import Login from "../../components/Login";
+import { useInView } from "react-intersection-observer";
 
 const Section = ({ title, content, imageSrc, imageAlt, isReverse, icon }) => {
   const Icon = icon;
   return (
-    <div
-      className={`flex flex-col ${
-        isReverse ? "md:flex-row-reverse" : "md:flex-row"
-      } bg-gray-200 items-center`}
+    <AnimatedSection>
+      <div
+        className={`flex flex-col ${
+          isReverse ? "md:flex-row-reverse" : "md:flex-row"
+        } bg-gray-200 items-center`}
+      >
+        <div className="md:w-1/2 p-4">
+          <Image
+            src={imageSrc}
+            alt={imageAlt}
+            width={600}
+            height={400}
+            className="w-full h-64 object-cover rounded-lg shadow-md"
+          />
+        </div>
+        <div className="md:w-1/2 p-4">
+          <h2 className="text-2xl font-bold text-blue-900 mb-4 flex items-center">
+            {Icon && <Icon className="mr-2" size={24} />}
+            {title}
+          </h2>
+          <p className="text-black text-xl font-sans">{content}</p>
+        </div>
+      </div>
+    </AnimatedSection>
+  );
+};
+
+const AnimatedSection = ({ children }) => {
+  const [ref, inView] = useInView({
+    triggerOnce: true,
+    threshold: 0.1,
+  });
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 50 }}
+      animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
+      transition={{ duration: 0.5 }}
     >
-      <div className="md:w-1/2 p-4">
-        <Image
-          src={imageSrc}
-          alt={imageAlt}
-          width={600}
-          height={400}
-          className="w-full h-64 object-cover rounded-lg shadow-md"
-        />
-      </div>
-      <div className="md:w-1/2 p-4">
-        <h2 className="text-2xl font-bold text-blue-900 mb-4 flex items-center">
-          {Icon && <Icon className="mr-2" size={24} />}
-          {title}
-        </h2>
-        <p className="text-black text-xl font-sans">{content}</p>
-      </div>
-    </div>
+      {children}
+    </motion.div>
   );
 };
 const About = () => {
@@ -150,31 +172,46 @@ const About = () => {
         ]}
         title="About Us"
       />
-      <div className="mx-auto px-4 py-8 px-8">
-        {sections.map((section, index) => (
-          <Section key={index} {...section} />
-        ))}
 
-        <h2 className="text-3xl font-bold text-siemens-green mb-8 mt-16">
-          Our Team
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
-          {teamMembers.map((member) => (
-            <TeamMember
-              key={member.id}
-              {...member}
-              isOpen={openMemberId === member.id}
-              onToggle={() => toggleMember(member.id)}
-            />
+      <div className="mx-auto px-4 py-8 px-8">
+        <div>
+          {sections.map((section, index) => (
+            <Section key={index} {...section} />
           ))}
         </div>
 
-        <h2 className="text-3xl font-bold text-siemens-green mb-8">
-          Our Partners
-        </h2>
-        <div className="mb-16">
-          <Partners />
-        </div>
+        <AnimatedSection>
+          <div>
+            <h2 className="text-3xl font-bold text-siemens-green mb-8 mt-16">
+              Our Team
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+              {teamMembers.map((member) => (
+                <TeamMember
+                  key={member.id}
+                  {...member}
+                  isOpen={openMemberId === member.id}
+                  onToggle={() => toggleMember(member.id)}
+                />
+              ))}
+            </div>
+          </div>
+        </AnimatedSection>
+        <AnimatedSection>
+          <div>
+            <h2 className="text-3xl font-bold text-siemens-green mb-8">
+              Our Partners
+            </h2>
+            <div className="mb-16">
+              <Partners />
+            </div>
+          </div>
+        </AnimatedSection>
+        <AnimatedSection>
+          <div>
+            <Login />
+          </div>
+        </AnimatedSection>
       </div>
       <Footer />
     </div>

@@ -4,6 +4,7 @@ import ProgramCard2 from "../../components/ProgramCard2";
 import Footer from "../../components/Footer";
 import TitleImage from "../../components/TitleImage";
 import Testimonial from "../../components/Testimonial";
+import Login from "../../components/Login";
 
 const Programmes = () => {
   // Renamed to start with a capital letter
@@ -81,7 +82,11 @@ const Programmes = () => {
           From Our Alumni
         </h2>
         <Testimonial />
+        <div className="mt-8">
+          <Login />
+        </div>
       </div>
+
       <Footer />
     </div>
   );
