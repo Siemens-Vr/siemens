@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import Link from "next/link";
 import {
   Book,
   Video,
@@ -23,7 +24,6 @@ import { Textarea } from "../../components/ui/textarea";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import PDFViewer from "../../components/PDFViewer"; // Import a PDF viewer component
-import ProfileMenu from "../../components/ProfileMenu";
 
 const StudentDashboard = () => {
   const [activeTab, setActiveTab] = useState("content");
@@ -93,6 +93,7 @@ const StudentDashboard = () => {
       ],
     },
   ];
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const timetable = [
     {
@@ -152,7 +153,7 @@ const StudentDashboard = () => {
           <DialogHeader>
             <DialogTitle>{material.title}</DialogTitle>
           </DialogHeader>
-
+          );
           <div className="flex h-full space-x-4 overflow-hidden">
             {/* Content Display Area */}
             <div className="flex-1 overflow-y-auto border rounded-lg">
@@ -259,7 +260,25 @@ const StudentDashboard = () => {
                   {new Date(studentInfo.lastAccessed).toLocaleString()}
                 </p>
               </div>
-              <ProfileMenu student={studentInfo} />
+              <Link href="/Profile" legacyBehavior>
+                <a className="flex items-center space-x-2 py-2 px-4 rounded-md hover:bg-gray-200 transition-colors">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                    />
+                  </svg>
+                  <span className="font-medium">Profile</span>
+                </a>
+              </Link>
             </div>
           </div>
         </div>

@@ -124,7 +124,7 @@ const Header = ({ targetDate: initialTargetDate, onApplyClick }) => {
           <nav className="bg-gray-200 text-black p-4 flex flex-col md:flex-row justify-between items-center shadow-md">
             <div className="logo text-2xl font-bold md:mb-0">
               <h1 className="text-siemens-green text-center md:text-left">
-                SIEMENS CENTRE
+                <span className="text-siemens-olive">DeKUT</span> SIEMENS CENTRE
               </h1>
             </div>
             <ul className="flex flex-wrap justify-center md:space-x-4 items-center font-bold">
