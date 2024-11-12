@@ -9,7 +9,6 @@ const ProgramCard = ({ title, description, imageSrc, altText }) => (
         alt={altText}
         width={600}
         height={300}
-        layout="responsive"
         className="object-cover w-full h-full transform transition-transform duration-300 hover:scale-110"
       />
     </div>

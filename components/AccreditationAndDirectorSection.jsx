@@ -41,10 +41,9 @@ const AccreditationAndDirectorSection = () => {
             <Image
               src="/Prof-Eng-Jean-Bosco-Byiringiro.png"
               alt="Prof. Eng. Jean Bosco Byiringiro"
-              layout="fill"
-              objectFit="cover"
-              className="rounded-full"
-            />
+             
+              style={{ objectFit: 'cover' }}
+              className="rounded-full" fill />
           </div>
           <div className="flex-1">
             <blockquote className="text-2xl font-sans font-bold text-blue-900 mb-4">

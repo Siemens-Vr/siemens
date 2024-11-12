@@ -73,6 +73,7 @@ const ProjectPage = () => {
                   width={500}
                   height={300}
                   className="w-full h-auto object-cover rounded-lg"
+                  fill
                 />
               </div>
             ))}

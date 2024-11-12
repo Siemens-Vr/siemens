@@ -6,6 +6,7 @@ const MissionSection = ({ missions = [] }) => {
   const [currentMission, setCurrentMission] = useState(0);
   const totalMissions = missions.length;
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const nextMission = () => {
     if (totalMissions > 0) {
       setCurrentMission((prev) => (prev + 1) % totalMissions);
@@ -23,7 +24,7 @@ const MissionSection = ({ missions = [] }) => {
       const interval = setInterval(nextMission, 5000);
       return () => clearInterval(interval);
     }
-  }, [totalMissions]);
+  }, [totalMissions, nextMission]);
 
   if (totalMissions === 0) {
     return (

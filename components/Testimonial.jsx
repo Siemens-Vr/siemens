@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import Image from "next/image";
 
 const testimonials = [
   {
@@ -35,19 +36,20 @@ export default function TestimonialCarousel() {
   const [currentIndex, setCurrentIndex] = useState(testimonials.length);
   const [isAnimating, setIsAnimating] = useState(false);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const nextSlide = () => {
+    if (isAnimating) return;
+    setIsAnimating(true);
+    setCurrentIndex((prev) => prev + 1);
+  };
+
   useEffect(() => {
     const timer = setInterval(() => {
       nextSlide();
     }, 5000);
 
     return () => clearInterval(timer);
-  }, []);
-
-  const nextSlide = () => {
-    if (isAnimating) return;
-    setIsAnimating(true);
-    setCurrentIndex((prev) => prev + 1);
-  };
+  }, [nextSlide]);
 
   const prevSlide = () => {
     if (isAnimating) return;
@@ -124,9 +126,11 @@ function TestimonialCard({ testimonial }) {
             <p className="text-sm text-gray-900">{testimonial.role}</p>
           </div>
         </div>
-        <img
+        <Image
           src={testimonial.image}
           alt={testimonial.name}
+          width={32}
+          height={32}
           className="w-32 h-32 rounded-full flex-shrink-0"
         />
       </div>

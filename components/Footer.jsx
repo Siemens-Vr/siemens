@@ -8,7 +8,7 @@ const Footer = () => {
           {/* Left Column */}
           <div className="md:w-1/3 mb-4">
             <h2 className="text-xl font-bold text-siemens-green">
-              SIEMENS CENTRE
+              <span className="text-siemens-olive">DeKUT</span> SIEMENS CENTRE
             </h2>
             <ul className="mt-4 space-y-2">
               {[

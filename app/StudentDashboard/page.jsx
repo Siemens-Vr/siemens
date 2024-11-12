@@ -36,7 +36,7 @@ const StudentDashboard = () => {
     name: "Christopher Mwangi",
     level: "Level 3",
     progress: 65,
-    lastAccessed: "2024-10-21T14:30:00",
+    lastAccessed: "2024-10-20T14:30:00",
   };
 
   const courseContent = [
@@ -102,25 +102,14 @@ const StudentDashboard = () => {
         {
           time: "09:00 - 11:00",
           subject: "Theory Class - Mechatronic Systems",
-          instructor: "Prof. Smith",
+          instructor: "Prof.",
           location: "Room 101",
         },
         {
           time: "14:00 - 16:00",
           subject: "Practical Lab - PLC Programming",
-          instructor: "Dr. Johnson",
+          instructor: "Edwin",
           location: "Lab 3",
-        },
-      ],
-    },
-    {
-      day: "Wednesday",
-      sessions: [
-        {
-          time: "10:00 - 12:00",
-          subject: "Workshop - System Integration",
-          instructor: "Prof. Smith",
-          location: "Workshop Hall",
         },
       ],
     },

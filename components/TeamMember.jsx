@@ -20,10 +20,9 @@ const TeamMember = ({
         <Image
           src={imageSrc}
           alt={name}
-          layout="fill"
-          objectFit="cover"
-          className="rounded-full"
-        />
+         
+          style={{ objectFit: 'cover' }}
+          className="rounded-full" fill />
       </div>
       <div>
         <h3 className="text-xl font-semibold text-white">{name}</h3>

@@ -54,18 +54,18 @@ const MainPage = () => {
       title: "Our Vision",
       content:
         "To bridge the gap between higher-educational institutions and industries by providing world-class professional training and research.",
-      image: "/learning-factory-image.jpg", // Replace with your actual image path
+      image: "/learning-factory-image.jpg",
     },
     {
       title: "Our Mission",
       content:
         "To empower individuals with skills that enhance employability and foster innovation in technology.",
-      image: "/WorldSkills.png", // Replace with your actual image path
+      image: "/WorldSkills.png",
     },
     {
       title: "Our Motto",
       content: "Innovation, Excellence, and Leadership in Mechatronics.",
-      image: "/Level1.jpg", // Replace with your actual image path
+      image: "/Level1.jpg",
     },
   ];
 

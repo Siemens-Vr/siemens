@@ -12,6 +12,7 @@ const ProjectsCarousel = ({ projects }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const totalProjects = projects.length;
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const nextProject = () => {
     if (!isExpanded) {
       setCurrentProject((prev) => (prev + 1) % totalProjects);
@@ -30,7 +31,7 @@ const ProjectsCarousel = ({ projects }) => {
       interval = setInterval(nextProject, 4000);
     }
     return () => clearInterval(interval);
-  }, [isExpanded]);
+  }, [isExpanded, nextProject]);
 
   const toggleExpand = () => {
     setIsExpanded(!isExpanded);

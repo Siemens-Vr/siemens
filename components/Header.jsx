@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import Image from "next/image";
 import { AlertCircle } from "lucide-react";
 import ApplicationForm from "./ApplicationForm";
 
@@ -59,10 +60,11 @@ const Header = ({ targetDate: initialTargetDate, onApplyClick }) => {
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
-      if (currentScrollY > lastScrollY && currentScrollY > 0) {
-        setShowBanner(false);
-      } else if (currentScrollY === 0) {
-        setShowBanner(true);
+      // Show banner when scrolling up, hide when scrolling down
+      if (currentScrollY > lastScrollY) {
+        setShowBanner(false); // Scrolling down
+      } else {
+        setShowBanner(true); // Scrolling up
       }
       setLastScrollY(currentScrollY);
     };
@@ -122,7 +124,13 @@ const Header = ({ targetDate: initialTargetDate, onApplyClick }) => {
 
           {/* Navbar */}
           <nav className="bg-gray-200 text-black p-4 flex flex-col md:flex-row justify-between items-center shadow-md">
-            <div className="logo text-2xl font-bold md:mb-0">
+            <div className="logo text-2xl font-bold md:mb-0 flex items-center gap-3">
+              <Image
+                src="/logo-header.png" // Update this path to match your logo's location
+                alt="DeKUT Siemens Logo"
+                width={50} // Adjust these dimensions to match your logo's proportions
+                height={50}
+              />
               <h1 className="text-siemens-green text-center md:text-left">
                 <span className="text-siemens-olive">DeKUT</span> SIEMENS CENTRE
               </h1>

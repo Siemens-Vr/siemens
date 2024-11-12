@@ -6,10 +6,10 @@ import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 
 const UserProfile = () => {
-  const [name, setName] = useState("Christopher Mwangi");
+  const [name, setName] = useState("Name");
   const [level, setLevel] = useState(3);
-  const [email, setEmail] = useState("chrismugwimi01@gmail.com");
-  const [phone, setPhone] = useState("0757961791");
+  const [email, setEmail] = useState("email@example.com");
+  const [phone, setPhone] = useState("1234567890");
   const [password, setPassword] = useState("");
   const [showPasswordModal, setShowPasswordModal] = useState(false);
 
@@ -23,7 +23,7 @@ const UserProfile = () => {
   };
 
   return (
-    <div className="mt-[10px]">
+    <div className="mt-[110px]">
       <Header />
       <div className="max-w-3xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between mb-8">

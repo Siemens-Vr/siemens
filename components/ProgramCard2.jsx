@@ -21,11 +21,11 @@ const ProgramCard2 = ({ title, bgColor, courses, imageSrc, exploreLink }) => {
           <Image
             src={imageSrc}
             alt={title}
-            layout="fill"
-            objectFit="cover"
+            style={{ objectFit: "cover" }}
             className={`transition-all duration-300 ease-in-out ${
               isHovered ? "scale-110" : ""
             }`}
+            fill
           />
           <div
             className={`absolute inset-0 bg-black bg-opacity-50 transition-opacity duration-300 ${

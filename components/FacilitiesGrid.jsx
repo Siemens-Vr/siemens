@@ -43,9 +43,9 @@ const FacilitiesGrid = () => {
             <Image
               src={facility.src}
               alt={facility.alt}
-              layout="fill"
-              objectFit="cover"
+              style={{ objectFit: "cover" }}
               className="w-full h-full transition-transform duration-300 ease-in-out group-hover:scale-105"
+              fill
             />
           </div>
         ))}
@@ -64,7 +64,6 @@ const FacilitiesGrid = () => {
             <Image
               src={selectedImage}
               alt="Selected Facility"
-              layout="responsive"
               width={800} // Set the width and height for the modal image
               height={600}
               className="rounded-lg"

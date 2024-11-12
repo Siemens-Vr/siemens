@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import Link from "next/link";
 import {
   Pencil,
   Save,
@@ -218,6 +219,25 @@ const InstructorDashboard = () => {
                 </p>
                 <p className="text-sm text-gray-600">Students</p>
               </div>
+              <Link href="/Profile" legacyBehavior>
+                <a className="flex items-center space-x-2 py-2 px-4 rounded-md hover:bg-gray-200 transition-colors">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                    />
+                  </svg>
+                  <span className="font-medium">Profile</span>
+                </a>
+              </Link>
             </div>
           </div>
         </div>
@@ -324,7 +344,10 @@ const InstructorDashboard = () => {
                                 key={index}
                                 className="flex items-center gap-2 text-sm"
                               >
-                                <ImageIcon className="w-4 h-4 text-siemens-green" />
+                                <ImageIcon
+                                  className="w-4 h-4 text-siemens-green"
+                                  fill
+                                />
                                 <span>{material.imageNames[index]}</span>
                                 <button
                                   onClick={() =>

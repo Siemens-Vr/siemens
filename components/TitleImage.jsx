@@ -28,12 +28,11 @@ const TitleImage = ({ images, title }) => {
             key={index}
             src={image.src}
             alt={image.alt}
-            layout="fill"
-            objectFit="cover"
+           
+            style={{ objectFit: 'cover' }}
             className={`transition-opacity duration-1000 ${
               index === currentImageIndex ? "opacity-100" : "opacity-0"
-            }`}
-          />
+            }`} fill />
         ))}
       </div>
       {/* Overlay content */}

@@ -1456,81 +1456,83 @@ const ApplicationForm = ({ isOpen, setIsOpen }) => {
   };
 
   return (
-    <div>
+    <>
       {isOpen && (
         <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
-          <div className="flex h-[36rem] max-h-[90vh]">
-            {/* Vertical Steps Navigation */}
-            <div className="w-64 bg-gray-50 p-6 border-r border-gray-200">
-              <div className="space-y-1">
-                {steps.map((step, index) => (
-                  <button
-                    key={step.id}
-                    onClick={() => handleStepClick(index)}
-                    className="w-full text-left"
-                  >
-                    <div className="flex items-center space-x-3 p-2 rounded hover:bg-gray-100">
-                      <div
-                        className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
-                          index === currentStep
-                            ? "bg-siemens-green-dark text-white"
-                            : index < currentStep
-                            ? "bg-green-100 text-siemens-green"
-                            : "bg-gray-200 text-gray-500"
-                        }`}
-                      >
-                        {index + 1}
+          <div className="w-full max-w-5xl mx-auto">
+            <div className="flex h-[36rem] max-h-[90vh] bg-white rounded-lg overflow-hidden">
+              {/* Vertical Steps Navigation */}
+              <div className="w-64 bg-gray-50 p-6 border-r border-gray-200 flex-shrink-0">
+                <div className="space-y-1">
+                  {steps.map((step, index) => (
+                    <button
+                      key={step.id}
+                      onClick={() => handleStepClick(index)}
+                      className="w-full text-left"
+                    >
+                      <div className="flex items-center space-x-3 p-2 rounded hover:bg-gray-100">
+                        <div
+                          className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
+                            index === currentStep
+                              ? "bg-siemens-green-dark text-white"
+                              : index < currentStep
+                              ? "bg-green-100 text-siemens-green"
+                              : "bg-gray-200 text-gray-500"
+                          }`}
+                        >
+                          {index + 1}
+                        </div>
+                        <div
+                          className={`text-sm font-medium ${
+                            index === currentStep
+                              ? "text-siemens-green"
+                              : index < currentStep
+                              ? "text-gray-700"
+                              : "text-gray-400"
+                          }`}
+                        >
+                          {step.title}
+                        </div>
                       </div>
-                      <div
-                        className={`text-sm font-medium ${
-                          index === currentStep
-                            ? "text-siemens-green"
-                            : index < currentStep
-                            ? "text-gray-700"
-                            : "text-gray-400"
-                        }`}
-                      >
-                        {step.title}
-                      </div>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Form Content */}
-            <div className="flex-1 flex flex-col">
-              <div className="flex-1 p-6 overflow-y-auto">
-                {renderStepContent(currentStep)}
+                    </button>
+                  ))}
+                </div>
               </div>
 
-              {/* Navigation Buttons */}
-              <div className="p-6 border-t border-gray-200 bg-white">
-                <div className="flex justify-between">
-                  <button
-                    onClick={handlePrevious}
-                    disabled={currentStep === 0}
-                    className={`px-4 py-2 rounded-md ${
-                      currentStep === 0
-                        ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                    }`}
-                  >
-                    Previous
-                  </button>
-                  <button
-                    onClick={handleNext}
-                    className="bg-siemens-green text-white px-4 py-2 rounded-md hover:bg-siemens-green-dark"
-                  >
-                    {currentStep === steps.length - 1 ? "Close" : "Next"}
-                  </button>
+              {/* Form Content */}
+              <div className="flex-1 flex flex-col min-w-0">
+                <div className="flex-1 p-6 overflow-y-auto">
+                  {renderStepContent(currentStep)}
+                </div>
+
+                {/* Navigation Buttons */}
+                <div className="p-6 border-t border-gray-200 bg-white flex-shrink-0">
+                  <div className="flex justify-between">
+                    <button
+                      onClick={handlePrevious}
+                      disabled={currentStep === 0}
+                      className={`px-4 py-2 rounded-md ${
+                        currentStep === 0
+                          ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                          : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                      }`}
+                    >
+                      Previous
+                    </button>
+                    <button
+                      onClick={handleNext}
+                      className="bg-siemens-green text-white px-4 py-2 rounded-md hover:bg-siemens-green-dark"
+                    >
+                      {currentStep === steps.length - 1 ? "Close" : "Next"}
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </Modal>
       )}
-    </div>
+    </>
   );
 };
 
