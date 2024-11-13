@@ -11,7 +11,6 @@ import {
   Upload,
   Trash2,
   FileText,
-  Users,
   Image as ImageIcon,
   Video,
 } from "lucide-react";
@@ -32,52 +31,84 @@ const InstructorDashboard = () => {
   // State for active tab
   const [activeTab, setActiveTab] = useState("materials");
 
-  // State for materials
   const [materials, setMaterials] = useState({
-    level1: [
-      {
-        id: "1",
-        title: "Fundamentals of Mechatronic Systems",
-        content: "",
-        level: "level1",
-        imageUrls: [],
-        imageNames: [],
-        videoUrls: [],
-        videoNames: [],
-      },
-    ],
-    level2: [],
-    level3: [],
+    level1: {
+      weeks: [
+        {
+          id: "week1",
+          name: "Week 1",
+          title: "Introduction Week",
+          materials: [
+            {
+              id: "1",
+              title: "Fundamentals of Mechatronic Systems",
+              description: "",
+              duration: "2 hours",
+              imageUrls: [],
+              imageNames: [],
+              videoUrls: [],
+              videoNames: [],
+            },
+          ],
+        },
+      ],
+    },
+    level2: { weeks: [] },
+    level3: { weeks: [] },
   });
 
   // State for editing material
   const [editingMaterial, setEditingMaterial] = useState(null);
+  const [newTitle, setNewTitle] = useState("");
+  const [newDuration, setNewDuration] = useState("");
+  const [newDescription, setNewDescription] = useState("");
 
-  // State for selected level
+  // State for selected level and week
   const [selectedLevel, setSelectedLevel] = useState("level1");
+  const [selectedWeek, setSelectedWeek] = useState("week1");
 
-  // State for timetable
-  const [timetable, setTimetable] = useState([
-    {
-      id: "1",
-      day: "Monday",
-      time: "09:00",
-      subject: "Programming Fundamentals",
-      level: "Level 1",
-      location: "Room 101",
-    },
-  ]);
+  // Handler for adding new week
+  const addNewWeek = () => {
+    const weekCount = materials[selectedLevel].weeks.length + 1;
+    const newWeek = {
+      id: `week${weekCount}`,
+      name: `Week ${weekCount}`,
+      title: `Week ${weekCount} Title`,
+      materials: [],
+    };
 
-  // State for editing schedule
-  const [editingSchedule, setEditingSchedule] = useState(null);
+    setMaterials((prev) => ({
+      ...prev,
+      [selectedLevel]: {
+        ...prev[selectedLevel],
+        weeks: [...prev[selectedLevel].weeks, newWeek],
+      },
+    }));
+    setSelectedWeek(newWeek.id);
+  };
+
+  // Handler for updating week name and title
+  const updateWeekInfo = (weekId, newName, newTitle) => {
+    setMaterials((prev) => ({
+      ...prev,
+      [selectedLevel]: {
+        ...prev[selectedLevel],
+        weeks: prev[selectedLevel].weeks.map((week) =>
+          week.id === weekId
+            ? { ...week, name: newName, title: newTitle }
+            : week
+        ),
+      },
+    }));
+  };
 
   // Handler for adding new material
   const addNewMaterial = () => {
     const newMaterial = {
       id: Date.now().toString(),
       title: "New Material",
-      content: "Enter more content or description here...",
-      level: selectedLevel,
+      description: "Enter material description here...",
+      duration: "1 hour",
       imageUrls: [],
       imageNames: [],
       videoUrls: [],
@@ -86,110 +117,89 @@ const InstructorDashboard = () => {
 
     setMaterials((prev) => ({
       ...prev,
-      [selectedLevel]: [...prev[selectedLevel], newMaterial],
+      [selectedLevel]: {
+        ...prev[selectedLevel],
+        weeks: prev[selectedLevel].weeks.map((week) =>
+          week.id === selectedWeek
+            ? { ...week, materials: [...week.materials, newMaterial] }
+            : week
+        ),
+      },
     }));
   };
 
   // Handler for editing material
   const handleEditMaterial = (material) => {
     setEditingMaterial(material);
+    setNewTitle(material.title);
+    setNewDuration(material.duration);
+    setNewDescription(material.description);
   };
 
   // Handler for saving material
-  const handleSaveMaterial = (id, content) => {
+  const handleSaveMaterial = (
+    weekId,
+    materialId,
+    newTitle,
+    newDuration,
+    newDescription
+  ) => {
     setMaterials((prev) => ({
       ...prev,
-      [selectedLevel]: prev[selectedLevel].map((material) =>
-        material.id === id ? { ...material, content } : material
-      ),
+      [selectedLevel]: {
+        ...prev[selectedLevel],
+        weeks: prev[selectedLevel].weeks.map((week) =>
+          week.id === weekId
+            ? {
+                ...week,
+                materials: week.materials.map((material) =>
+                  material.id === materialId
+                    ? {
+                        ...material,
+                        title: newTitle,
+                        duration: newDuration,
+                        description: newDescription,
+                      }
+                    : material
+                ),
+              }
+            : week
+        ),
+      },
     }));
     setEditingMaterial(null);
+    setNewTitle("");
+    setNewDuration("");
+    setNewDescription("");
   };
 
-  // Handler for file upload
-  const handleFileUpload = (materialId, file, type) => {
-    if (!file) return;
-
-    // In a real application, you would upload the file to a server here
-    const fileUrl = URL.createObjectURL(file);
-
+  // Handler for deleting material
+  const handleDeleteMaterial = (weekId, materialId) => {
     setMaterials((prev) => ({
       ...prev,
-      [selectedLevel]: prev[selectedLevel].map((material) => {
-        if (material.id === materialId) {
-          switch (type) {
-            case "pdf":
-              return { ...material, pdfUrl: fileUrl, fileName: file.name };
-            case "image":
-              return {
-                ...material,
-                imageUrls: [...material.imageUrls, fileUrl],
-                imageNames: [...material.imageNames, file.name],
-              };
-            case "video":
-              return {
-                ...material,
-                videoUrls: [...material.videoUrls, fileUrl],
-                videoNames: [...material.videoNames, file.name],
-              };
-            default:
-              return material;
-          }
-        }
-        return material;
-      }),
+      [selectedLevel]: {
+        ...prev[selectedLevel],
+        weeks: prev[selectedLevel].weeks.map((week) =>
+          week.id === weekId
+            ? {
+                ...week,
+                materials: week.materials.filter(
+                  (material) => material.id !== materialId
+                ),
+              }
+            : week
+        ),
+      },
     }));
   };
 
-  // Handler for deleting files
-  const handleDeleteFile = (materialId, type, index) => {
-    setMaterials((prev) => ({
-      ...prev,
-      [selectedLevel]: prev[selectedLevel].map((material) => {
-        if (material.id === materialId) {
-          switch (type) {
-            case "pdf":
-              return { ...material, pdfUrl: undefined, fileName: undefined };
-            case "image":
-              return {
-                ...material,
-                imageUrls: material.imageUrls.filter((_, i) => i !== index),
-                imageNames: material.imageNames.filter((_, i) => i !== index),
-              };
-            case "video":
-              return {
-                ...material,
-                videoUrls: material.videoUrls.filter((_, i) => i !== index),
-                videoNames: material.videoNames.filter((_, i) => i !== index),
-              };
-            default:
-              return material;
-          }
-        }
-        return material;
-      }),
-    }));
-  };
-
-  // Handler for adding new schedule
-  const addNewSchedule = () => {
-    const newSchedule = {
-      id: Date.now().toString(),
-      day: "Monday",
-      time: "09:00",
-      subject: "New Class",
-      level: "Level 1",
-      location: "TBD",
-    };
-
-    setTimetable((prev) => [...prev, newSchedule]);
-  };
-
-  // Handler for saving schedule
-  const handleSaveSchedule = (id, updatedSchedule) => {
-    setTimetable((prev) =>
-      prev.map((schedule) => (schedule.id === id ? updatedSchedule : schedule))
+  // Get current week's materials
+  const getCurrentWeekMaterials = () => {
+    const currentLevel = materials[selectedLevel];
+    const currentWeek = currentLevel.weeks.find(
+      (week) => week.id === selectedWeek
     );
+    return currentWeek ? currentWeek.materials : [];
   };
 
   return (
@@ -291,331 +301,141 @@ const InstructorDashboard = () => {
                   </button>
                 ))}
               </div>
-              <Button onClick={addNewMaterial} className="gap-2">
-                <Plus className="w-4 h-4" /> Add Material
+            </div>
+
+            {/* Week Selection */}
+            <div className="flex items-center gap-4 mb-6">
+              <input
+                type="text"
+                value={
+                  materials[selectedLevel].weeks.find(
+                    (week) => week.id === selectedWeek
+                  )?.name || ""
+                }
+                onChange={(e) =>
+                  updateWeekInfo(
+                    selectedWeek,
+                    e.target.value,
+                    materials[selectedLevel].weeks.find(
+                      (week) => week.id === selectedWeek
+                    )?.title || ""
+                  )
+                }
+                className="p-2 border rounded-lg flex-1"
+                placeholder="Enter week name"
+              />
+              <input
+                type="text"
+                value={
+                  materials[selectedLevel].weeks.find(
+                    (week) => week.id === selectedWeek
+                  )?.title || ""
+                }
+                onChange={(e) =>
+                  updateWeekInfo(
+                    selectedWeek,
+                    materials[selectedLevel].weeks.find(
+                      (week) => week.id === selectedWeek
+                    )?.name || "",
+                    e.target.value
+                  )
+                }
+                className="p-2 border rounded-lg flex-1"
+                placeholder="Enter week title"
+              />
+              <Button onClick={addNewWeek} className="gap-2">
+                <Plus className="w-4 h-4" /> Add Week
               </Button>
             </div>
 
+            {/* Add Material Button */}
+            <Button onClick={addNewMaterial} className="gap-2 mb-6">
+              <Plus className="w-4 h-4" /> Add Material
+            </Button>
+
             {/* Materials List */}
             <div className="space-y-4">
-              {materials[selectedLevel].map((material) => (
+              {getCurrentWeekMaterials().map((material) => (
                 <div
                   key={material.id}
                   className="border rounded-lg p-4 hover:shadow-md transition-shadow"
                 >
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
-                      <h3 className="font-semibold text-gray-900">
-                        {material.title}
-                      </h3>
                       {editingMaterial?.id === material.id ? (
-                        <Textarea
-                          className="mt-2"
-                          defaultValue={material.content}
-                          rows={3}
-                        />
+                        <>
+                          <input
+                            type="text"
+                            value={newTitle}
+                            onChange={(e) => setNewTitle(e.target.value)}
+                            className="w-full p-2 border rounded mb-2"
+                            placeholder="Material Title"
+                          />
+                          <input
+                            type="text"
+                            value={newDuration}
+                            onChange={(e) => setNewDuration(e.target.value)}
+                            className="w-full p-2 border rounded mb-2"
+                            placeholder="Duration (e.g., 2 hours)"
+                          />
+                          <Textarea
+                            className="mt-2"
+                            value={newDescription}
+                            onChange={(e) => setNewDescription(e.target.value)}
+                            placeholder="Material Description"
+                            rows={3}
+                          />
+                        </>
                       ) : (
-                        <p className="mt-2 text-gray-600">{material.content}</p>
+                        <>
+                          <h3 className="font-semibold text-gray-900">
+                            {material.title}
+                          </h3>
+                          <p className="text-sm text-gray-500 mt-1">
+                            Duration: {material.duration}
+                          </p>
+                          <p className="mt-2 text-gray-600 whitespace-pre-wrap">
+                            {material.description}
+                          </p>
+                        </>
                       )}
-
-                      {/* File Upload Section */}
-                      <div className="mt-4 space-y-4">
-                        {/* PDF Files */}
-                        {material.pdfUrl && (
-                          <div className="flex items-center gap-2 text-sm">
-                            <FileText className="w-4 h-4 text-siemens-green" />
-                            <span>{material.fileName}</span>
-                            <button
-                              onClick={() =>
-                                handleDeleteFile(material.id, "pdf")
-                              }
-                              className="text-red-500 hover:text-red-600"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </div>
-                        )}
-
-                        {/* Image Files */}
-                        {material.imageUrls.length > 0 && (
-                          <div className="space-y-2">
-                            {material.imageUrls.map((url, index) => (
-                              <div
-                                key={index}
-                                className="flex items-center gap-2 text-sm"
-                              >
-                                <ImageIcon
-                                  className="w-4 h-4 text-siemens-green"
-                                  fill
-                                />
-                                <span>{material.imageNames[index]}</span>
-                                <button
-                                  onClick={() =>
-                                    handleDeleteFile(
-                                      material.id,
-                                      "image",
-                                      index
-                                    )
-                                  }
-                                  className="text-red-500 hover:text-red-600"
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                </button>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-
-                        {/* Video Files */}
-                        {material.videoUrls.length > 0 && (
-                          <div className="space-y-2">
-                            {material.videoUrls.map((url, index) => (
-                              <div
-                                key={index}
-                                className="flex items-center gap-2 text-sm"
-                              >
-                                <Video className="w-4 h-4 text-siemens-green" />
-                                <span>{material.videoNames[index]}</span>
-                                <button
-                                  onClick={() =>
-                                    handleDeleteFile(
-                                      material.id,
-                                      "video",
-                                      index
-                                    )
-                                  }
-                                  className="text-red-500 hover:text-red-600"
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                </button>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-
-                        {/* Upload Buttons */}
-                        <div className="flex gap-4">
-                          {!material.pdfUrl && (
-                            <div className="relative">
-                              <input
-                                type="file"
-                                accept=".pdf"
-                                onChange={(e) =>
-                                  handleFileUpload(
-                                    material.id,
-                                    e.target.files[0],
-                                    "pdf"
-                                  )
-                                }
-                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                              />
-                              <Button variant="outline" className="gap-2">
-                                <Upload className="w-4 h-4" />
-                                Upload PDF
-                              </Button>
-                            </div>
-                          )}
-                          <div className="relative">
-                            <input
-                              type="file"
-                              accept="image/*"
-                              onChange={(e) =>
-                                handleFileUpload(
-                                  material.id,
-                                  e.target.files[0],
-                                  "image"
-                                )
-                              }
-                              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                            />
-                            <Button variant="outline" className="gap-2">
-                              <ImageIcon className="w-4 h-4" />
-                              Upload Image
-                            </Button>
-                          </div>
-                          <div className="relative">
-                            <input
-                              type="file"
-                              accept="video/*"
-                              onChange={(e) =>
-                                handleFileUpload(
-                                  material.id,
-                                  e.target.files[0],
-                                  "video"
-                                )
-                              }
-                              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                            />
-                            <Button variant="outline" className="gap-2">
-                              <Video className="w-4 h-4" />
-                              Upload Video
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
                     </div>
-
                     <div>
                       {editingMaterial?.id === material.id ? (
                         <Button
                           onClick={() =>
-                            handleSaveMaterial(material.id, material.content)
+                            handleSaveMaterial(
+                              selectedWeek,
+                              material.id,
+                              newTitle,
+                              newDuration,
+                              newDescription
+                            )
                           }
                           className="gap-2"
                         >
                           <Save className="w-4 h-4" /> Save
                         </Button>
                       ) : (
-                        <Button
-                          variant="outline"
-                          onClick={() => handleEditMaterial(material)}
-                          className="gap-2"
-                        >
-                          <Pencil className="w-4 h-4" /> Edit
-                        </Button>
+                        <div className="flex justify-end space-x-2">
+                          <button
+                            onClick={() =>
+                              handleDeleteMaterial(selectedWeek, material.id)
+                            }
+                            className="text-red-500 hover:text-red-600"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                          <Button
+                            variant="outline"
+                            onClick={() => handleEditMaterial(material)}
+                            className="gap-2"
+                          >
+                            <Pencil className="w-4 h-4" /> Edit
+                          </Button>
+                        </div>
                       )}
                     </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Timetable Tab Content */}
-        {activeTab === "timetable" && (
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-semibold text-gray-900">
-                Class Schedule
-              </h2>
-              <Button onClick={addNewSchedule} className="gap-2">
-                <Plus className="w-4 h-4" /> Add Class
-              </Button>
-            </div>
-
-            <div className="space-y-4">
-              {timetable.map((schedule) => (
-                <div
-                  key={schedule.id}
-                  className="flex items-start p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                >
-                  <div className="flex-1">
-                    {editingSchedule?.id === schedule.id ? (
-                      <div className="space-y-3">
-                        <div>
-                          <select
-                            defaultValue={schedule.day}
-                            className="w-full p-2 border rounded"
-                            onChange={(e) =>
-                              handleSaveSchedule(schedule.id, {
-                                ...schedule,
-                                day: e.target.value,
-                              })
-                            }
-                          >
-                            {[
-                              "Monday",
-                              "Tuesday",
-                              "Wednesday",
-                              "Thursday",
-                              "Friday",
-                            ].map((day) => (
-                              <option key={day} value={day}>
-                                {day}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                        <div>
-                          <input
-                            type="time"
-                            defaultValue={schedule.time}
-                            className="w-full p-2 border rounded"
-                            onChange={(e) =>
-                              handleSaveSchedule(schedule.id, {
-                                ...schedule,
-                                time: e.target.value,
-                              })
-                            }
-                          />
-                        </div>
-                        <div>
-                          <input
-                            type="text"
-                            defaultValue={schedule.subject}
-                            placeholder="Subject"
-                            className="w-full p-2 border rounded"
-                            onChange={(e) =>
-                              handleSaveSchedule(schedule.id, {
-                                ...schedule,
-                                subject: e.target.value,
-                              })
-                            }
-                          />
-                        </div>
-                        <div>
-                          <input
-                            type="text"
-                            defaultValue={schedule.location}
-                            placeholder="Location"
-                            className="w-full p-2 border rounded"
-                            onChange={(e) =>
-                              handleSaveSchedule(schedule.id, {
-                                ...schedule,
-                                location: e.target.value,
-                              })
-                            }
-                          />
-                        </div>
-                      </div>
-                    ) : (
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <Calendar className="w-5 h-5 text-siemens-green" />
-                          <h3 className="font-semibold text-gray-900">
-                            {schedule.day}
-                          </h3>
-                        </div>
-                        <div className="mt-2">
-                          <div className="flex items-center gap-2">
-                            <Clock className="w-4 h-4 text-gray-500" />
-                            <p className="text-gray-600">{schedule.time}</p>
-                          </div>
-                          <p className="text-gray-600 mt-1">
-                            {schedule.subject} - {schedule.level}
-                          </p>
-                          <p className="text-sm text-gray-500">
-                            {schedule.location}
-                          </p>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                  <div>
-                    <Button
-                      variant={
-                        editingSchedule?.id === schedule.id
-                          ? "default"
-                          : "outline"
-                      }
-                      onClick={() =>
-                        editingSchedule?.id === schedule.id
-                          ? setEditingSchedule(null)
-                          : setEditingSchedule(schedule)
-                      }
-                      className="gap-2"
-                    >
-                      {editingSchedule?.id === schedule.id ? (
-                        <>
-                          <Save className="w-4 h-4" /> Save
-                        </>
-                      ) : (
-                        <>
-                          <Pencil className="w-4 h-4" /> Edit
-                        </>
-                      )}
-                    </Button>
                   </div>
                 </div>
               ))}
