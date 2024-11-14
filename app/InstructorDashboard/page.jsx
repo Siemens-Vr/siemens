@@ -31,6 +31,19 @@ const InstructorDashboard = () => {
   // State for active tab
   const [activeTab, setActiveTab] = useState("materials");
 
+  // State for timetable
+  const [timetable, setTimetable] = useState([
+    {
+      id: 1,
+      day: "Monday",
+      time: "09:00",
+      subject: "Virtual Reality Basics",
+      location: "Lab 101",
+      level: "Level 1",
+    },
+  ]);
+  const [editingSchedule, setEditingSchedule] = useState(null);
+
   const [materials, setMaterials] = useState({
     level1: {
       weeks: [
@@ -200,6 +213,34 @@ const InstructorDashboard = () => {
       (week) => week.id === selectedWeek
     );
     return currentWeek ? currentWeek.materials : [];
+  };
+  // Timetable handlers
+  const addNewSchedule = () => {
+    const newSchedule = {
+      id: Date.now(),
+      day: "Monday",
+      time: "09:00",
+      subject: "New Class",
+      location: "TBD",
+      level: "Level 1",
+    };
+    setTimetable([...timetable, newSchedule]);
+    setEditingSchedule(newSchedule);
+  };
+
+  const handleSaveSchedule = (id, updatedSchedule) => {
+    setTimetable(
+      timetable.map((schedule) =>
+        schedule.id === id ? { ...schedule, ...updatedSchedule } : schedule
+      )
+    );
+  };
+
+  const handleDeleteSchedule = (id) => {
+    setTimetable(timetable.filter((schedule) => schedule.id !== id));
+    if (editingSchedule?.id === id) {
+      setEditingSchedule(null);
+    }
   };
 
   return (
@@ -436,6 +477,170 @@ const InstructorDashboard = () => {
                         </div>
                       )}
                     </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        {/* Timetable Tab Content */}
+        {activeTab === "timetable" && (
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-semibold text-gray-900">
+                Class Schedule
+              </h2>
+              <Button onClick={addNewSchedule} className="gap-2">
+                <Plus className="w-4 h-4" /> Add Class
+              </Button>
+            </div>
+            <div className="space-y-4">
+              {timetable.map((schedule) => (
+                <div
+                  key={schedule.id}
+                  className="flex items-start justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                >
+                  <div className="flex-1">
+                    {editingSchedule?.id === schedule.id ? (
+                      <div className="space-y-3">
+                        <div>
+                          <select
+                            defaultValue={schedule.day}
+                            className="w-full p-2 border rounded"
+                            onChange={(e) =>
+                              handleSaveSchedule(schedule.id, {
+                                ...schedule,
+                                day: e.target.value,
+                              })
+                            }
+                          >
+                            {[
+                              "Monday",
+                              "Tuesday",
+                              "Wednesday",
+                              "Thursday",
+                              "Friday",
+                            ].map((day) => (
+                              <option key={day} value={day}>
+                                {day}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        <div>
+                          <input
+                            type="time"
+                            defaultValue={schedule.time}
+                            className="w-full p-2 border rounded"
+                            onChange={(e) =>
+                              handleSaveSchedule(schedule.id, {
+                                ...schedule,
+                                time: e.target.value,
+                              })
+                            }
+                          />
+                        </div>
+                        <div>
+                          <input
+                            type="text"
+                            defaultValue={schedule.subject}
+                            placeholder="Subject"
+                            className="w-full p-2 border rounded"
+                            onChange={(e) =>
+                              handleSaveSchedule(schedule.id, {
+                                ...schedule,
+                                subject: e.target.value,
+                              })
+                            }
+                          />
+                        </div>
+                        <div>
+                          <select
+                            defaultValue={schedule.level}
+                            className="w-full p-2 border rounded"
+                            onChange={(e) =>
+                              handleSaveSchedule(schedule.id, {
+                                ...schedule,
+                                level: e.target.value,
+                              })
+                            }
+                          >
+                            {["Level 1", "Level 2", "Level 3"].map((level) => (
+                              <option key={level} value={level}>
+                                {level}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        <div>
+                          <input
+                            type="text"
+                            defaultValue={schedule.location}
+                            placeholder="Location"
+                            className="w-full p-2 border rounded"
+                            onChange={(e) =>
+                              handleSaveSchedule(schedule.id, {
+                                ...schedule,
+                                location: e.target.value,
+                              })
+                            }
+                          />
+                        </div>
+                      </div>
+                    ) : (
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <Calendar className="w-5 h-5 text-siemens-green" />
+                          <h3 className="font-semibold text-gray-900">
+                            {schedule.day}
+                          </h3>
+                        </div>
+                        <div className="mt-2">
+                          <div className="flex items-center gap-2">
+                            <Clock className="w-4 h-4 text-gray-500" />
+                            <p className="text-gray-600">{schedule.time}</p>
+                          </div>
+                          <p className="text-gray-600 mt-1">
+                            {schedule.subject} - {schedule.level}
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            {schedule.location}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant={
+                        editingSchedule?.id === schedule.id
+                          ? "default"
+                          : "outline"
+                      }
+                      onClick={() =>
+                        editingSchedule?.id === schedule.id
+                          ? setEditingSchedule(null)
+                          : setEditingSchedule(schedule)
+                      }
+                      className="gap-2"
+                    >
+                      {editingSchedule?.id === schedule.id ? (
+                        <>
+                          <Save className="w-4 h-4" /> Save
+                        </>
+                      ) : (
+                        <>
+                          <Pencil className="w-4 h-4" /> Edit
+                        </>
+                      )}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="text-red-500 hover:text-red-600"
+                      onClick={() => handleDeleteSchedule(schedule.id)}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
                   </div>
                 </div>
               ))}
