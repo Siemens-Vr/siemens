@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   Pencil,
@@ -22,53 +22,21 @@ import Footer from "../../components/Footer";
 const InstructorDashboard = () => {
   // State for instructor info
   const [instructorInfo, setInstructorInfo] = useState({
-    name: "Maxwell Magoi",
-    department: "Virtual Reality",
-    materialsCount: 5,
-    studentsCount: 150,
+    name: "",
+    department: "",
+    materialsCount: 0,
+    studentsCount: 0,
   });
 
   // State for active tab
   const [activeTab, setActiveTab] = useState("materials");
 
   // State for timetable
-  const [timetable, setTimetable] = useState([
-    {
-      id: 1,
-      day: "Monday",
-      time: "09:00",
-      subject: "Virtual Reality Basics",
-      location: "Lab 101",
-      level: "Level 1",
-    },
-  ]);
+  const [timetable, setTimetable] = useState([]);
   const [editingSchedule, setEditingSchedule] = useState(null);
 
-  const [materials, setMaterials] = useState({
-    level1: {
-      weeks: [
-        {
-          id: "week1",
-          name: "Week 1",
-          title: "Introduction Week",
-          materials: [
-            {
-              id: "1",
-              title: "Fundamentals of Mechatronic Systems",
-              description: "",
-              duration: "2 hours",
-              imageUrls: [],
-              imageNames: [],
-              videoUrls: [],
-              videoNames: [],
-            },
-          ],
-        },
-      ],
-    },
-    level2: { weeks: [] },
-    level3: { weeks: [] },
-  });
+  // State for materials
+  const [materials, setMaterials] = useState({});
 
   // State for editing material
   const [editingMaterial, setEditingMaterial] = useState(null);
@@ -77,8 +45,64 @@ const InstructorDashboard = () => {
   const [newDescription, setNewDescription] = useState("");
 
   // State for selected level and week
-  const [selectedLevel, setSelectedLevel] = useState("level1");
-  const [selectedWeek, setSelectedWeek] = useState("week1");
+  const [selectedLevel, setSelectedLevel] = useState("");
+  const [selectedWeek, setSelectedWeek] = useState("");
+
+  // New state for levels
+  const [levels, setLevels] = useState([]);
+
+  // State for loading and error handling
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const backendUrl = "https://erpbackend-6vez.onrender.com";
+
+  // useEffect for fetching data from the backend
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+
+        // Fetch levels data
+        const levelsResponse = await fetch(`${backendUrl}/levels`);
+        if (!levelsResponse.ok) {
+          throw new Error("Failed to fetch levels data");
+        }
+        const levelsData = await levelsResponse.json();
+        setLevels(levelsData);
+
+        // If levels are fetched successfully, set the first level as selected
+        if (levelsData.length > 0) {
+          setSelectedLevel(levelsData[0].id.toString());
+        }
+
+        // Fetch instructor data (replace with your actual API endpoint)
+        const instructorResponse = await fetch(`${backendUrl}/facilitators`);
+        if (!instructorResponse.ok) {
+          throw new Error("Failed to fetch instructor data");
+        }
+        const instructorData = await instructorResponse.json();
+
+        // Update state with fetched data
+        setInstructorInfo(instructorData.instructorInfo);
+        setMaterials(instructorData.materials);
+        setTimetable(instructorData.timetable);
+
+        // Set the initial selected week to the first week of the first level, if it exists
+        const firstLevel = Object.keys(instructorData.materials)[0];
+        if (instructorData.materials[firstLevel]?.weeks.length > 0) {
+          setSelectedWeek(instructorData.materials[firstLevel].weeks[0].id);
+        }
+
+        setIsLoading(false);
+      } catch (error) {
+        setError(error.message);
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   // Handler for adding new week
   const addNewWeek = () => {
@@ -209,11 +233,12 @@ const InstructorDashboard = () => {
   // Get current week's materials
   const getCurrentWeekMaterials = () => {
     const currentLevel = materials[selectedLevel];
-    const currentWeek = currentLevel.weeks.find(
+    const currentWeek = currentLevel?.weeks.find(
       (week) => week.id === selectedWeek
     );
     return currentWeek ? currentWeek.materials : [];
   };
+
   // Timetable handlers
   const addNewSchedule = () => {
     const newSchedule = {
@@ -234,6 +259,7 @@ const InstructorDashboard = () => {
         schedule.id === id ? { ...schedule, ...updatedSchedule } : schedule
       )
     );
+    setEditingSchedule(null);
   };
 
   const handleDeleteSchedule = (id) => {
@@ -242,6 +268,22 @@ const InstructorDashboard = () => {
       setEditingSchedule(null);
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        Loading...
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-red-500">
+        Error: {error}
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -302,7 +344,7 @@ const InstructorDashboard = () => {
             onClick={() => setActiveTab("materials")}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
               activeTab === "materials"
-                ? "bg-siemens-green text-white"
+                ? "bg-blue-600 text-white"
                 : "bg-white text-gray-600 hover:bg-gray-50"
             }`}
           >
@@ -313,7 +355,7 @@ const InstructorDashboard = () => {
             onClick={() => setActiveTab("timetable")}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
               activeTab === "timetable"
-                ? "bg-siemens-green text-white"
+                ? "bg-blue-600 text-white"
                 : "bg-white text-gray-600 hover:bg-gray-50"
             }`}
           >
@@ -328,17 +370,17 @@ const InstructorDashboard = () => {
             {/* Level Selection */}
             <div className="flex justify-between items-center mb-6">
               <div className="flex gap-4">
-                {Object.keys(materials).map((level) => (
+                {levels.map((level) => (
                   <button
-                    key={level}
-                    onClick={() => setSelectedLevel(level)}
+                    key={level.id}
+                    onClick={() => setSelectedLevel(level.id.toString())}
                     className={`px-4 py-2 rounded-lg transition-colors ${
-                      selectedLevel === level
-                        ? "bg-siemens-green text-white"
+                      selectedLevel === level.id.toString()
+                        ? "bg-blue-600 text-white"
                         : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                     }`}
                   >
-                    Level {level.slice(-1)}
+                    {level.name}
                   </button>
                 ))}
               </div>
@@ -346,36 +388,28 @@ const InstructorDashboard = () => {
 
             {/* Week Selection */}
             <div className="flex items-center gap-4 mb-6">
-              <input
-                type="text"
-                value={
-                  materials[selectedLevel].weeks.find(
-                    (week) => week.id === selectedWeek
-                  )?.name || ""
-                }
-                onChange={(e) =>
-                  updateWeekInfo(
-                    selectedWeek,
-                    e.target.value,
-                    materials[selectedLevel].weeks.find(
-                      (week) => week.id === selectedWeek
-                    )?.title || ""
-                  )
-                }
+              <select
+                value={selectedWeek}
+                onChange={(e) => setSelectedWeek(e.target.value)}
                 className="p-2 border rounded-lg flex-1"
-                placeholder="Enter week name"
-              />
+              >
+                {materials[selectedLevel]?.weeks.map((week) => (
+                  <option key={week.id} value={week.id}>
+                    {week.name}
+                  </option>
+                ))}
+              </select>
               <input
                 type="text"
                 value={
-                  materials[selectedLevel].weeks.find(
+                  materials[selectedLevel]?.weeks.find(
                     (week) => week.id === selectedWeek
                   )?.title || ""
                 }
                 onChange={(e) =>
                   updateWeekInfo(
                     selectedWeek,
-                    materials[selectedLevel].weeks.find(
+                    materials[selectedLevel]?.weeks.find(
                       (week) => week.id === selectedWeek
                     )?.name || "",
                     e.target.value
@@ -483,6 +517,7 @@ const InstructorDashboard = () => {
             </div>
           </div>
         )}
+
         {/* Timetable Tab Content */}
         {activeTab === "timetable" && (
           <div className="bg-white rounded-lg shadow-sm p-6">
@@ -565,9 +600,9 @@ const InstructorDashboard = () => {
                               })
                             }
                           >
-                            {["Level 1", "Level 2", "Level 3"].map((level) => (
-                              <option key={level} value={level}>
-                                {level}
+                            {levels.map((level) => (
+                              <option key={level.id} value={level.name}>
+                                {level.name}
                               </option>
                             ))}
                           </select>
@@ -590,7 +625,7 @@ const InstructorDashboard = () => {
                     ) : (
                       <div>
                         <div className="flex items-center gap-2">
-                          <Calendar className="w-5 h-5 text-siemens-green" />
+                          <Calendar className="w-5 h-5 text-blue-600" />
                           <h3 className="font-semibold text-gray-900">
                             {schedule.day}
                           </h3>
@@ -619,7 +654,7 @@ const InstructorDashboard = () => {
                       }
                       onClick={() =>
                         editingSchedule?.id === schedule.id
-                          ? setEditingSchedule(null)
+                          ? handleSaveSchedule(schedule.id, schedule)
                           : setEditingSchedule(schedule)
                       }
                       className="gap-2"
