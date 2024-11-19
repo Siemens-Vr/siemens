@@ -20,44 +20,28 @@ import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 
 const InstructorDashboard = () => {
-  // State for instructor info
   const [instructorInfo, setInstructorInfo] = useState({
     name: "",
     department: "",
     materialsCount: 0,
     studentsCount: 0,
   });
-
-  // State for active tab
   const [activeTab, setActiveTab] = useState("materials");
-
-  // State for timetable
   const [timetable, setTimetable] = useState([]);
   const [editingSchedule, setEditingSchedule] = useState(null);
-
-  // State for materials
   const [materials, setMaterials] = useState({});
-
-  // State for editing material
   const [editingMaterial, setEditingMaterial] = useState(null);
   const [newTitle, setNewTitle] = useState("");
   const [newDuration, setNewDuration] = useState("");
   const [newDescription, setNewDescription] = useState("");
-
-  // State for selected level and week
   const [selectedLevel, setSelectedLevel] = useState("");
   const [selectedWeek, setSelectedWeek] = useState("");
-
-  // New state for levels
   const [levels, setLevels] = useState([]);
-
-  // State for loading and error handling
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
   const backendUrl = "https://erpbackend-6vez.onrender.com";
 
-  // useEffect for fetching data from the backend
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -71,28 +55,36 @@ const InstructorDashboard = () => {
         const levelsData = await levelsResponse.json();
         setLevels(levelsData);
 
-        // If levels are fetched successfully, set the first level as selected
+        // Set the initial selected level only if levels are available
         if (levelsData.length > 0) {
           setSelectedLevel(levelsData[0].id.toString());
         }
 
-        // Fetch instructor data (replace with your actual API endpoint)
+        // Fetch instructor data
         const instructorResponse = await fetch(`${backendUrl}/facilitators`);
         if (!instructorResponse.ok) {
           throw new Error("Failed to fetch instructor data");
         }
         const instructorData = await instructorResponse.json();
+        setInstructorInfo(instructorData[0]); // Assuming the first facilitator is the current user
 
-        // Update state with fetched data
-        setInstructorInfo(instructorData.instructorInfo);
-        setMaterials(instructorData.materials);
-        setTimetable(instructorData.timetable);
-
-        // Set the initial selected week to the first week of the first level, if it exists
-        const firstLevel = Object.keys(instructorData.materials)[0];
-        if (instructorData.materials[firstLevel]?.weeks.length > 0) {
-          setSelectedWeek(instructorData.materials[firstLevel].weeks[0].id);
+        // Fetch materials data
+        const materialsResponse = await fetch(`${backendUrl}/materials`);
+        if (!materialsResponse.ok) {
+          throw new Error("Failed to fetch materials data");
         }
+        const materialsData = await materialsResponse.json();
+        const organizedMaterials =
+          organizeMaterialsByLevelAndWeek(materialsData);
+        setMaterials(organizedMaterials);
+
+        // Fetch timetable data
+        const timetableResponse = await fetch(`${backendUrl}/timetable`);
+        if (!timetableResponse.ok) {
+          throw new Error("Failed to fetch timetable data");
+        }
+        const timetableData = await timetableResponse.json();
+        setTimetable(timetableData);
 
         setIsLoading(false);
       } catch (error) {
@@ -104,68 +96,128 @@ const InstructorDashboard = () => {
     fetchData();
   }, []);
 
-  // Handler for adding new week
-  const addNewWeek = () => {
-    const weekCount = materials[selectedLevel].weeks.length + 1;
-    const newWeek = {
-      id: `week${weekCount}`,
-      name: `Week ${weekCount}`,
-      title: `Week ${weekCount} Title`,
-      materials: [],
-    };
-
-    setMaterials((prev) => ({
-      ...prev,
-      [selectedLevel]: {
-        ...prev[selectedLevel],
-        weeks: [...prev[selectedLevel].weeks, newWeek],
-      },
-    }));
-    setSelectedWeek(newWeek.id);
+  const organizeMaterialsByLevelAndWeek = (materialsData) => {
+    const organized = {};
+    materialsData.forEach((material) => {
+      if (!organized[material.level]) {
+        organized[material.level] = { weeks: [] };
+      }
+      let week = organized[material.level].weeks.find(
+        (w) => w.id === material.week
+      );
+      if (!week) {
+        week = {
+          id: material.week,
+          name: `Week ${material.week}`,
+          materials: [],
+        };
+        organized[material.level].weeks.push(week);
+      }
+      week.materials.push(material);
+    });
+    return organized;
   };
 
-  // Handler for updating week name and title
-  const updateWeekInfo = (weekId, newName, newTitle) => {
-    setMaterials((prev) => ({
-      ...prev,
-      [selectedLevel]: {
-        ...prev[selectedLevel],
-        weeks: prev[selectedLevel].weeks.map((week) =>
-          week.id === weekId
-            ? { ...week, name: newName, title: newTitle }
-            : week
-        ),
-      },
-    }));
+  const addNewWeek = async () => {
+    try {
+      const weekCount = materials[selectedLevel].weeks.length + 1;
+      const newWeek = {
+        id: `week${weekCount}`,
+        name: `Week ${weekCount}`,
+        level: selectedLevel,
+      };
+
+      const response = await fetch(`${backendUrl}/weeks`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newWeek),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to add new week");
+      }
+
+      const addedWeek = await response.json();
+
+      setMaterials((prev) => ({
+        ...prev,
+        [selectedLevel]: {
+          ...prev[selectedLevel],
+          weeks: [...prev[selectedLevel].weeks, addedWeek],
+        },
+      }));
+      setSelectedWeek(addedWeek.id);
+    } catch (error) {
+      setError(error.message);
+    }
   };
 
-  // Handler for adding new material
-  const addNewMaterial = () => {
-    const newMaterial = {
-      id: Date.now().toString(),
-      title: "New Material",
-      description: "Enter material description here...",
-      duration: "1 hour",
-      imageUrls: [],
-      imageNames: [],
-      videoUrls: [],
-      videoNames: [],
-    };
+  const updateWeekInfo = async (weekId, newName, newTitle) => {
+    try {
+      const response = await fetch(`${backendUrl}/weeks/${weekId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: newName, title: newTitle }),
+      });
 
-    setMaterials((prev) => ({
-      ...prev,
-      [selectedLevel]: {
-        ...prev[selectedLevel],
-        weeks: prev[selectedLevel].weeks.map((week) =>
-          week.id === selectedWeek
-            ? { ...week, materials: [...week.materials, newMaterial] }
-            : week
-        ),
-      },
-    }));
+      if (!response.ok) {
+        throw new Error("Failed to update week info");
+      }
+
+      setMaterials((prev) => ({
+        ...prev,
+        [selectedLevel]: {
+          ...prev[selectedLevel],
+          weeks: prev[selectedLevel].weeks.map((week) =>
+            week.id === weekId
+              ? { ...week, name: newName, title: newTitle }
+              : week
+          ),
+        },
+      }));
+    } catch (error) {
+      setError(error.message);
+    }
   };
 
-  // Handler for editing material
+  const addNewMaterial = async () => {
+    try {
+      const newMaterial = {
+        title: "New Material",
+        description: "Enter material description here...",
+        duration: "1 hour",
+        level: selectedLevel,
+        week: selectedWeek,
+      };
+
+      const response = await fetch(`${backendUrl}/materials`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newMaterial),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to add new material");
+      }
+
+      const addedMaterial = await response.json();
+
+      setMaterials((prev) => ({
+        ...prev,
+        [selectedLevel]: {
+          ...prev[selectedLevel],
+          weeks: prev[selectedLevel].weeks.map((week) =>
+            week.id === selectedWeek
+              ? { ...week, materials: [...week.materials, addedMaterial] }
+              : week
+          ),
+        },
+      }));
+    } catch (error) {
+      setError(error.message);
+    }
+  };
+
   const handleEditMaterial = (material) => {
     setEditingMaterial(material);
     setNewTitle(material.title);
@@ -173,64 +225,91 @@ const InstructorDashboard = () => {
     setNewDescription(material.description);
   };
 
-  // Handler for saving material
-  const handleSaveMaterial = (
+  const handleSaveMaterial = async (
     weekId,
     materialId,
     newTitle,
     newDuration,
     newDescription
   ) => {
-    setMaterials((prev) => ({
-      ...prev,
-      [selectedLevel]: {
-        ...prev[selectedLevel],
-        weeks: prev[selectedLevel].weeks.map((week) =>
-          week.id === weekId
-            ? {
-                ...week,
-                materials: week.materials.map((material) =>
-                  material.id === materialId
-                    ? {
-                        ...material,
-                        title: newTitle,
-                        duration: newDuration,
-                        description: newDescription,
-                      }
-                    : material
-                ),
-              }
-            : week
-        ),
-      },
-    }));
-    setEditingMaterial(null);
-    setNewTitle("");
-    setNewDuration("");
-    setNewDescription("");
+    try {
+      const response = await fetch(`${backendUrl}/materials/${materialId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: newTitle,
+          duration: newDuration,
+          description: newDescription,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update material");
+      }
+
+      setMaterials((prev) => ({
+        ...prev,
+        [selectedLevel]: {
+          ...prev[selectedLevel],
+          weeks: prev[selectedLevel].weeks.map((week) =>
+            week.id === weekId
+              ? {
+                  ...week,
+                  materials: week.materials.map((material) =>
+                    material.id === materialId
+                      ? {
+                          ...material,
+                          title: newTitle,
+                          duration: newDuration,
+                          description: newDescription,
+                        }
+                      : material
+                  ),
+                }
+              : week
+          ),
+        },
+      }));
+      setEditingMaterial(null);
+      setNewTitle("");
+      setNewDuration("");
+      setNewDescription("");
+    } catch (error) {
+      setError(error.message);
+    }
   };
 
-  // Handler for deleting material
-  const handleDeleteMaterial = (weekId, materialId) => {
-    setMaterials((prev) => ({
-      ...prev,
-      [selectedLevel]: {
-        ...prev[selectedLevel],
-        weeks: prev[selectedLevel].weeks.map((week) =>
-          week.id === weekId
-            ? {
-                ...week,
-                materials: week.materials.filter(
-                  (material) => material.id !== materialId
-                ),
-              }
-            : week
-        ),
-      },
-    }));
+  const handleDeleteMaterial = async (weekId, materialId) => {
+    try {
+      const response = await fetch(`${backendUrl}/materials/${materialId}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete material");
+      }
+
+      setMaterials((prev) => ({
+        ...prev,
+        [selectedLevel]: {
+          ...prev[selectedLevel],
+          weeks: prev[selectedLevel].weeks.map((week) =>
+            week.id === weekId
+              ? {
+                  ...week,
+                  materials: week.materials.filter(
+                    (material) => material.id !== materialId
+                  ),
+                }
+              : week
+          ),
+        },
+      }));
+    } catch (error) {
+      setError(error.message);
+    }
   };
 
-  // Get current week's materials
   const getCurrentWeekMaterials = () => {
     const currentLevel = materials[selectedLevel];
     const currentWeek = currentLevel?.weeks.find(
@@ -239,33 +318,73 @@ const InstructorDashboard = () => {
     return currentWeek ? currentWeek.materials : [];
   };
 
-  // Timetable handlers
-  const addNewSchedule = () => {
-    const newSchedule = {
-      id: Date.now(),
-      day: "Monday",
-      time: "09:00",
-      subject: "New Class",
-      location: "TBD",
-      level: "Level 1",
-    };
-    setTimetable([...timetable, newSchedule]);
-    setEditingSchedule(newSchedule);
+  const addNewSchedule = async () => {
+    try {
+      const newSchedule = {
+        day: "Monday",
+        time: "09:00",
+        subject: "New Class",
+        location: "TBD",
+        level: levels[0].name,
+      };
+
+      const response = await fetch(`${backendUrl}/timetable`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newSchedule),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to add new schedule");
+      }
+
+      const addedSchedule = await response.json();
+      setTimetable([...timetable, addedSchedule]);
+      setEditingSchedule(addedSchedule);
+    } catch (error) {
+      setError(error.message);
+    }
   };
 
-  const handleSaveSchedule = (id, updatedSchedule) => {
-    setTimetable(
-      timetable.map((schedule) =>
-        schedule.id === id ? { ...schedule, ...updatedSchedule } : schedule
-      )
-    );
-    setEditingSchedule(null);
-  };
+  const handleSaveSchedule = async (id, updatedSchedule) => {
+    try {
+      const response = await fetch(`${backendUrl}/timetable/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedSchedule),
+      });
 
-  const handleDeleteSchedule = (id) => {
-    setTimetable(timetable.filter((schedule) => schedule.id !== id));
-    if (editingSchedule?.id === id) {
+      if (!response.ok) {
+        throw new Error("Failed to update schedule");
+      }
+
+      setTimetable(
+        timetable.map((schedule) =>
+          schedule.id === id ? { ...schedule, ...updatedSchedule } : schedule
+        )
+      );
       setEditingSchedule(null);
+    } catch (error) {
+      setError(error.message);
+    }
+  };
+
+  const handleDeleteSchedule = async (id) => {
+    try {
+      const response = await fetch(`${backendUrl}/timetable/${id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete schedule");
+      }
+
+      setTimetable(timetable.filter((schedule) => schedule.id !== id));
+      if (editingSchedule?.id === id) {
+        setEditingSchedule(null);
+      }
+    } catch (error) {
+      setError(error.message);
     }
   };
 
@@ -387,41 +506,43 @@ const InstructorDashboard = () => {
             </div>
 
             {/* Week Selection */}
-            <div className="flex items-center gap-4 mb-6">
-              <select
-                value={selectedWeek}
-                onChange={(e) => setSelectedWeek(e.target.value)}
-                className="p-2 border rounded-lg flex-1"
-              >
-                {materials[selectedLevel]?.weeks.map((week) => (
-                  <option key={week.id} value={week.id}>
-                    {week.name}
-                  </option>
-                ))}
-              </select>
-              <input
-                type="text"
-                value={
-                  materials[selectedLevel]?.weeks.find(
-                    (week) => week.id === selectedWeek
-                  )?.title || ""
-                }
-                onChange={(e) =>
-                  updateWeekInfo(
-                    selectedWeek,
-                    materials[selectedLevel]?.weeks.find(
+            {selectedLevel && materials[selectedLevel] && (
+              <div className="flex items-center gap-4 mb-6">
+                <select
+                  value={selectedWeek}
+                  onChange={(e) => setSelectedWeek(e.target.value)}
+                  className="p-2 border rounded-lg flex-1"
+                >
+                  {materials[selectedLevel].weeks.map((week) => (
+                    <option key={week.id} value={week.id}>
+                      {week.name}
+                    </option>
+                  ))}
+                </select>
+                <input
+                  type="text"
+                  value={
+                    materials[selectedLevel].weeks.find(
                       (week) => week.id === selectedWeek
-                    )?.name || "",
-                    e.target.value
-                  )
-                }
-                className="p-2 border rounded-lg flex-1"
-                placeholder="Enter week title"
-              />
-              <Button onClick={addNewWeek} className="gap-2">
-                <Plus className="w-4 h-4" /> Add Week
-              </Button>
-            </div>
+                    )?.title || ""
+                  }
+                  onChange={(e) =>
+                    updateWeekInfo(
+                      selectedWeek,
+                      materials[selectedLevel].weeks.find(
+                        (week) => week.id === selectedWeek
+                      )?.name || "",
+                      e.target.value
+                    )
+                  }
+                  className="p-2 border rounded-lg flex-1"
+                  placeholder="Enter week title"
+                />
+                <Button onClick={addNewWeek} className="gap-2">
+                  <Plus className="w-4 h-4" /> Add Week
+                </Button>
+              </div>
+            )}
 
             {/* Add Material Button */}
             <Button onClick={addNewMaterial} className="gap-2 mb-6">
