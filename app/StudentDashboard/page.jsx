@@ -21,7 +21,7 @@ import {
 } from "../../components/ui/dialog";
 import { Button } from "../../components/ui/button";
 import { Textarea } from "../../components/ui/textarea";
-import Navbar from "../../components/Navbar";
+import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import PDFViewer from "../../components/PDFViewer"; // Import a PDF viewer component
 
@@ -216,7 +216,7 @@ const StudentDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <Navbar />
+      <Header />
       {/* Header Section */}
 
       <div className="bg-white shadow">

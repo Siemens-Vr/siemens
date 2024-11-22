@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 import Link from "next/link";
 import ApplicationForm from "../components/ApplicationForm";
+import { useRouter } from "next/navigation";
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -12,15 +13,44 @@ const LoginPage = () => {
     rememberMe: false,
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const router = useRouter(); // To handle navigation
+
+  const backendUrl = "https://erpbackend-6vez.onrender.com/facilitators";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+    setError(null);
+
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      console.log("Login attempted with:", formData);
+      // Make API call to validate login
+      const response = await fetch(`${backendUrl}/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to log in");
+      }
+
+      const data = await response.json();
+
+      // Store tokens or session information
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("refreshToken", data.refreshToken);
+
+      // Redirect to the dashboard
+      router.push("/dashboard");
     } catch (error) {
-      console.error("Login failed:", error);
+      setError(error.message || "An error occurred during login");
     } finally {
       setIsLoading(false);
     }
@@ -33,7 +63,9 @@ const LoginPage = () => {
       [name]: type === "checkbox" ? checked : value,
     }));
   };
+
   const [isModalOpen, setIsModalOpen] = useState(false);
+
   return (
     <div>
       <div className="relative">
@@ -44,6 +76,12 @@ const LoginPage = () => {
         <h1 className="text-4xl font-bold text-siemens-green mb-6">
           Sign In to the Learning Website
         </h1>
+
+        {error && (
+          <div className="mb-4 text-red-500 text-center font-medium">
+            {error}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-2 gap-6">

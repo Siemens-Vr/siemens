@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import {
   Pencil,
@@ -16,208 +16,132 @@ import {
 } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { Textarea } from "../../components/ui/textarea";
-import Navbar from "../../components/Navbar";
+import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 
 const InstructorDashboard = () => {
+  // State for instructor info
   const [instructorInfo, setInstructorInfo] = useState({
-    name: "",
-    department: "",
-    materialsCount: 0,
-    studentsCount: 0,
+    name: "Maxwell Magoi",
+    department: "Virtual Reality",
+    materialsCount: 5,
+    studentsCount: 150,
   });
+
+  // State for active tab
   const [activeTab, setActiveTab] = useState("materials");
-  const [timetable, setTimetable] = useState([]);
+
+  // State for timetable
+  const [timetable, setTimetable] = useState([
+    {
+      id: 1,
+      day: "Monday",
+      time: "09:00",
+      subject: "Virtual Reality Basics",
+      location: "Lab 101",
+      level: "Level 1",
+    },
+  ]);
   const [editingSchedule, setEditingSchedule] = useState(null);
-  const [materials, setMaterials] = useState({});
+
+  const [materials, setMaterials] = useState({
+    level1: {
+      weeks: [
+        {
+          id: "week1",
+          name: "Week 1",
+          title: "Introduction Week",
+          materials: [
+            {
+              id: "1",
+              title: "Fundamentals of Mechatronic Systems",
+              description: "",
+              duration: "2 hours",
+              imageUrls: [],
+              imageNames: [],
+              videoUrls: [],
+              videoNames: [],
+            },
+          ],
+        },
+      ],
+    },
+    level2: { weeks: [] },
+    level3: { weeks: [] },
+  });
+
+  // State for editing material
   const [editingMaterial, setEditingMaterial] = useState(null);
   const [newTitle, setNewTitle] = useState("");
   const [newDuration, setNewDuration] = useState("");
   const [newDescription, setNewDescription] = useState("");
-  const [selectedLevel, setSelectedLevel] = useState("");
-  const [selectedWeek, setSelectedWeek] = useState("");
-  const [levels, setLevels] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
 
-  const backendUrl = "https://erpbackend-6vez.onrender.com";
+  // State for selected level and week
+  const [selectedLevel, setSelectedLevel] = useState("level1");
+  const [selectedWeek, setSelectedWeek] = useState("week1");
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setIsLoading(true);
-
-        // Fetch levels data
-        const levelsResponse = await fetch(`${backendUrl}/levels`);
-        if (!levelsResponse.ok) {
-          throw new Error("Failed to fetch levels data");
-        }
-        const levelsData = await levelsResponse.json();
-        setLevels(levelsData);
-
-        // Set the initial selected level only if levels are available
-        if (levelsData.length > 0) {
-          setSelectedLevel(levelsData[0].id.toString());
-        }
-
-        // Fetch instructor data
-        const instructorResponse = await fetch(`${backendUrl}/facilitators`);
-        if (!instructorResponse.ok) {
-          throw new Error("Failed to fetch instructor data");
-        }
-        const instructorData = await instructorResponse.json();
-        setInstructorInfo(instructorData[0]); // Assuming the first facilitator is the current user
-
-        // Fetch materials data
-        const materialsResponse = await fetch(`${backendUrl}/materials`);
-        if (!materialsResponse.ok) {
-          throw new Error("Failed to fetch materials data");
-        }
-        const materialsData = await materialsResponse.json();
-        const organizedMaterials =
-          organizeMaterialsByLevelAndWeek(materialsData);
-        setMaterials(organizedMaterials);
-
-        // Fetch timetable data
-        const timetableResponse = await fetch(`${backendUrl}/timetable`);
-        if (!timetableResponse.ok) {
-          throw new Error("Failed to fetch timetable data");
-        }
-        const timetableData = await timetableResponse.json();
-        setTimetable(timetableData);
-
-        setIsLoading(false);
-      } catch (error) {
-        setError(error.message);
-        setIsLoading(false);
-      }
+  // Handler for adding new week
+  const addNewWeek = () => {
+    const weekCount = materials[selectedLevel].weeks.length + 1;
+    const newWeek = {
+      id: `week${weekCount}`,
+      name: `Week ${weekCount}`,
+      title: `Week ${weekCount} Title`,
+      materials: [],
     };
 
-    fetchData();
-  }, []);
-
-  const organizeMaterialsByLevelAndWeek = (materialsData) => {
-    const organized = {};
-    materialsData.forEach((material) => {
-      if (!organized[material.level]) {
-        organized[material.level] = { weeks: [] };
-      }
-      let week = organized[material.level].weeks.find(
-        (w) => w.id === material.week
-      );
-      if (!week) {
-        week = {
-          id: material.week,
-          name: `Week ${material.week}`,
-          materials: [],
-        };
-        organized[material.level].weeks.push(week);
-      }
-      week.materials.push(material);
-    });
-    return organized;
+    setMaterials((prev) => ({
+      ...prev,
+      [selectedLevel]: {
+        ...prev[selectedLevel],
+        weeks: [...prev[selectedLevel].weeks, newWeek],
+      },
+    }));
+    setSelectedWeek(newWeek.id);
   };
 
-  const addNewWeek = async () => {
-    try {
-      const weekCount = materials[selectedLevel].weeks.length + 1;
-      const newWeek = {
-        id: `week${weekCount}`,
-        name: `Week ${weekCount}`,
-        level: selectedLevel,
-      };
-
-      const response = await fetch(`${backendUrl}/weeks`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newWeek),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to add new week");
-      }
-
-      const addedWeek = await response.json();
-
-      setMaterials((prev) => ({
-        ...prev,
-        [selectedLevel]: {
-          ...prev[selectedLevel],
-          weeks: [...prev[selectedLevel].weeks, addedWeek],
-        },
-      }));
-      setSelectedWeek(addedWeek.id);
-    } catch (error) {
-      setError(error.message);
-    }
+  // Handler for updating week name and title
+  const updateWeekInfo = (weekId, newName, newTitle) => {
+    setMaterials((prev) => ({
+      ...prev,
+      [selectedLevel]: {
+        ...prev[selectedLevel],
+        weeks: prev[selectedLevel].weeks.map((week) =>
+          week.id === weekId
+            ? { ...week, name: newName, title: newTitle }
+            : week
+        ),
+      },
+    }));
   };
 
-  const updateWeekInfo = async (weekId, newName, newTitle) => {
-    try {
-      const response = await fetch(`${backendUrl}/weeks/${weekId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: newName, title: newTitle }),
-      });
+  // Handler for adding new material
+  const addNewMaterial = () => {
+    const newMaterial = {
+      id: Date.now().toString(),
+      title: "New Material",
+      description: "Enter material description here...",
+      duration: "1 hour",
+      imageUrls: [],
+      imageNames: [],
+      videoUrls: [],
+      videoNames: [],
+    };
 
-      if (!response.ok) {
-        throw new Error("Failed to update week info");
-      }
-
-      setMaterials((prev) => ({
-        ...prev,
-        [selectedLevel]: {
-          ...prev[selectedLevel],
-          weeks: prev[selectedLevel].weeks.map((week) =>
-            week.id === weekId
-              ? { ...week, name: newName, title: newTitle }
-              : week
-          ),
-        },
-      }));
-    } catch (error) {
-      setError(error.message);
-    }
+    setMaterials((prev) => ({
+      ...prev,
+      [selectedLevel]: {
+        ...prev[selectedLevel],
+        weeks: prev[selectedLevel].weeks.map((week) =>
+          week.id === selectedWeek
+            ? { ...week, materials: [...week.materials, newMaterial] }
+            : week
+        ),
+      },
+    }));
   };
 
-  const addNewMaterial = async () => {
-    try {
-      const newMaterial = {
-        title: "New Material",
-        description: "Enter material description here...",
-        duration: "1 hour",
-        level: selectedLevel,
-        week: selectedWeek,
-      };
-
-      const response = await fetch(`${backendUrl}/materials`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newMaterial),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to add new material");
-      }
-
-      const addedMaterial = await response.json();
-
-      setMaterials((prev) => ({
-        ...prev,
-        [selectedLevel]: {
-          ...prev[selectedLevel],
-          weeks: prev[selectedLevel].weeks.map((week) =>
-            week.id === selectedWeek
-              ? { ...week, materials: [...week.materials, addedMaterial] }
-              : week
-          ),
-        },
-      }));
-    } catch (error) {
-      setError(error.message);
-    }
-  };
-
+  // Handler for editing material
   const handleEditMaterial = (material) => {
     setEditingMaterial(material);
     setNewTitle(material.title);
@@ -225,188 +149,103 @@ const InstructorDashboard = () => {
     setNewDescription(material.description);
   };
 
-  const handleSaveMaterial = async (
+  // Handler for saving material
+  const handleSaveMaterial = (
     weekId,
     materialId,
     newTitle,
     newDuration,
     newDescription
   ) => {
-    try {
-      const response = await fetch(`${backendUrl}/materials/${materialId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: newTitle,
-          duration: newDuration,
-          description: newDescription,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to update material");
-      }
-
-      setMaterials((prev) => ({
-        ...prev,
-        [selectedLevel]: {
-          ...prev[selectedLevel],
-          weeks: prev[selectedLevel].weeks.map((week) =>
-            week.id === weekId
-              ? {
-                  ...week,
-                  materials: week.materials.map((material) =>
-                    material.id === materialId
-                      ? {
-                          ...material,
-                          title: newTitle,
-                          duration: newDuration,
-                          description: newDescription,
-                        }
-                      : material
-                  ),
-                }
-              : week
-          ),
-        },
-      }));
-      setEditingMaterial(null);
-      setNewTitle("");
-      setNewDuration("");
-      setNewDescription("");
-    } catch (error) {
-      setError(error.message);
-    }
+    setMaterials((prev) => ({
+      ...prev,
+      [selectedLevel]: {
+        ...prev[selectedLevel],
+        weeks: prev[selectedLevel].weeks.map((week) =>
+          week.id === weekId
+            ? {
+                ...week,
+                materials: week.materials.map((material) =>
+                  material.id === materialId
+                    ? {
+                        ...material,
+                        title: newTitle,
+                        duration: newDuration,
+                        description: newDescription,
+                      }
+                    : material
+                ),
+              }
+            : week
+        ),
+      },
+    }));
+    setEditingMaterial(null);
+    setNewTitle("");
+    setNewDuration("");
+    setNewDescription("");
   };
 
-  const handleDeleteMaterial = async (weekId, materialId) => {
-    try {
-      const response = await fetch(`${backendUrl}/materials/${materialId}`, {
-        method: "DELETE",
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to delete material");
-      }
-
-      setMaterials((prev) => ({
-        ...prev,
-        [selectedLevel]: {
-          ...prev[selectedLevel],
-          weeks: prev[selectedLevel].weeks.map((week) =>
-            week.id === weekId
-              ? {
-                  ...week,
-                  materials: week.materials.filter(
-                    (material) => material.id !== materialId
-                  ),
-                }
-              : week
-          ),
-        },
-      }));
-    } catch (error) {
-      setError(error.message);
-    }
+  // Handler for deleting material
+  const handleDeleteMaterial = (weekId, materialId) => {
+    setMaterials((prev) => ({
+      ...prev,
+      [selectedLevel]: {
+        ...prev[selectedLevel],
+        weeks: prev[selectedLevel].weeks.map((week) =>
+          week.id === weekId
+            ? {
+                ...week,
+                materials: week.materials.filter(
+                  (material) => material.id !== materialId
+                ),
+              }
+            : week
+        ),
+      },
+    }));
   };
 
+  // Get current week's materials
   const getCurrentWeekMaterials = () => {
     const currentLevel = materials[selectedLevel];
-    const currentWeek = currentLevel?.weeks.find(
+    const currentWeek = currentLevel.weeks.find(
       (week) => week.id === selectedWeek
     );
     return currentWeek ? currentWeek.materials : [];
   };
-
-  const addNewSchedule = async () => {
-    try {
-      const newSchedule = {
-        day: "Monday",
-        time: "09:00",
-        subject: "New Class",
-        location: "TBD",
-        level: levels[0].name,
-      };
-
-      const response = await fetch(`${backendUrl}/timetable`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newSchedule),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to add new schedule");
-      }
-
-      const addedSchedule = await response.json();
-      setTimetable([...timetable, addedSchedule]);
-      setEditingSchedule(addedSchedule);
-    } catch (error) {
-      setError(error.message);
-    }
+  // Timetable handlers
+  const addNewSchedule = () => {
+    const newSchedule = {
+      id: Date.now(),
+      day: "Monday",
+      time: "09:00",
+      subject: "New Class",
+      location: "TBD",
+      level: "Level 1",
+    };
+    setTimetable([...timetable, newSchedule]);
+    setEditingSchedule(newSchedule);
   };
 
-  const handleSaveSchedule = async (id, updatedSchedule) => {
-    try {
-      const response = await fetch(`${backendUrl}/timetable/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updatedSchedule),
-      });
+  const handleSaveSchedule = (id, updatedSchedule) => {
+    setTimetable(
+      timetable.map((schedule) =>
+        schedule.id === id ? { ...schedule, ...updatedSchedule } : schedule
+      )
+    );
+  };
 
-      if (!response.ok) {
-        throw new Error("Failed to update schedule");
-      }
-
-      setTimetable(
-        timetable.map((schedule) =>
-          schedule.id === id ? { ...schedule, ...updatedSchedule } : schedule
-        )
-      );
+  const handleDeleteSchedule = (id) => {
+    setTimetable(timetable.filter((schedule) => schedule.id !== id));
+    if (editingSchedule?.id === id) {
       setEditingSchedule(null);
-    } catch (error) {
-      setError(error.message);
     }
   };
-
-  const handleDeleteSchedule = async (id) => {
-    try {
-      const response = await fetch(`${backendUrl}/timetable/${id}`, {
-        method: "DELETE",
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to delete schedule");
-      }
-
-      setTimetable(timetable.filter((schedule) => schedule.id !== id));
-      if (editingSchedule?.id === id) {
-        setEditingSchedule(null);
-      }
-    } catch (error) {
-      setError(error.message);
-    }
-  };
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        Loading...
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center text-red-500">
-        Error: {error}
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <Navbar />
+      <Header />
 
       {/* Header Section */}
       <div className="bg-white shadow">
@@ -463,7 +302,7 @@ const InstructorDashboard = () => {
             onClick={() => setActiveTab("materials")}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
               activeTab === "materials"
-                ? "bg-blue-600 text-white"
+                ? "bg-siemens-green text-white"
                 : "bg-white text-gray-600 hover:bg-gray-50"
             }`}
           >
@@ -474,7 +313,7 @@ const InstructorDashboard = () => {
             onClick={() => setActiveTab("timetable")}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
               activeTab === "timetable"
-                ? "bg-blue-600 text-white"
+                ? "bg-siemens-green text-white"
                 : "bg-white text-gray-600 hover:bg-gray-50"
             }`}
           >
@@ -489,60 +328,66 @@ const InstructorDashboard = () => {
             {/* Level Selection */}
             <div className="flex justify-between items-center mb-6">
               <div className="flex gap-4">
-                {levels.map((level) => (
+                {Object.keys(materials).map((level) => (
                   <button
-                    key={level.id}
-                    onClick={() => setSelectedLevel(level.id.toString())}
+                    key={level}
+                    onClick={() => setSelectedLevel(level)}
                     className={`px-4 py-2 rounded-lg transition-colors ${
-                      selectedLevel === level.id.toString()
-                        ? "bg-blue-600 text-white"
+                      selectedLevel === level
+                        ? "bg-siemens-green text-white"
                         : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                     }`}
                   >
-                    {level.name}
+                    Level {level.slice(-1)}
                   </button>
                 ))}
               </div>
             </div>
 
             {/* Week Selection */}
-            {selectedLevel && materials[selectedLevel] && (
-              <div className="flex items-center gap-4 mb-6">
-                <select
-                  value={selectedWeek}
-                  onChange={(e) => setSelectedWeek(e.target.value)}
-                  className="p-2 border rounded-lg flex-1"
-                >
-                  {materials[selectedLevel].weeks.map((week) => (
-                    <option key={week.id} value={week.id}>
-                      {week.name}
-                    </option>
-                  ))}
-                </select>
-                <input
-                  type="text"
-                  value={
+            <div className="flex items-center gap-4 mb-6">
+              <input
+                type="text"
+                value={
+                  materials[selectedLevel].weeks.find(
+                    (week) => week.id === selectedWeek
+                  )?.name || ""
+                }
+                onChange={(e) =>
+                  updateWeekInfo(
+                    selectedWeek,
+                    e.target.value,
                     materials[selectedLevel].weeks.find(
                       (week) => week.id === selectedWeek
                     )?.title || ""
-                  }
-                  onChange={(e) =>
-                    updateWeekInfo(
-                      selectedWeek,
-                      materials[selectedLevel].weeks.find(
-                        (week) => week.id === selectedWeek
-                      )?.name || "",
-                      e.target.value
-                    )
-                  }
-                  className="p-2 border rounded-lg flex-1"
-                  placeholder="Enter week title"
-                />
-                <Button onClick={addNewWeek} className="gap-2">
-                  <Plus className="w-4 h-4" /> Add Week
-                </Button>
-              </div>
-            )}
+                  )
+                }
+                className="p-2 border rounded-lg flex-1"
+                placeholder="Enter week name"
+              />
+              <input
+                type="text"
+                value={
+                  materials[selectedLevel].weeks.find(
+                    (week) => week.id === selectedWeek
+                  )?.title || ""
+                }
+                onChange={(e) =>
+                  updateWeekInfo(
+                    selectedWeek,
+                    materials[selectedLevel].weeks.find(
+                      (week) => week.id === selectedWeek
+                    )?.name || "",
+                    e.target.value
+                  )
+                }
+                className="p-2 border rounded-lg flex-1"
+                placeholder="Enter week title"
+              />
+              <Button onClick={addNewWeek} className="gap-2">
+                <Plus className="w-4 h-4" /> Add Week
+              </Button>
+            </div>
 
             {/* Add Material Button */}
             <Button onClick={addNewMaterial} className="gap-2 mb-6">
@@ -638,7 +483,6 @@ const InstructorDashboard = () => {
             </div>
           </div>
         )}
-
         {/* Timetable Tab Content */}
         {activeTab === "timetable" && (
           <div className="bg-white rounded-lg shadow-sm p-6">
@@ -721,9 +565,9 @@ const InstructorDashboard = () => {
                               })
                             }
                           >
-                            {levels.map((level) => (
-                              <option key={level.id} value={level.name}>
-                                {level.name}
+                            {["Level 1", "Level 2", "Level 3"].map((level) => (
+                              <option key={level} value={level}>
+                                {level}
                               </option>
                             ))}
                           </select>
@@ -746,7 +590,7 @@ const InstructorDashboard = () => {
                     ) : (
                       <div>
                         <div className="flex items-center gap-2">
-                          <Calendar className="w-5 h-5 text-blue-600" />
+                          <Calendar className="w-5 h-5 text-siemens-green" />
                           <h3 className="font-semibold text-gray-900">
                             {schedule.day}
                           </h3>
@@ -775,7 +619,7 @@ const InstructorDashboard = () => {
                       }
                       onClick={() =>
                         editingSchedule?.id === schedule.id
-                          ? handleSaveSchedule(schedule.id, schedule)
+                          ? setEditingSchedule(null)
                           : setEditingSchedule(schedule)
                       }
                       className="gap-2"
